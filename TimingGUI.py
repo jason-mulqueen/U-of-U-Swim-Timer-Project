@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jan 25 12:44:48 2018
+
+@author: Kyle
+"""
+
 import PyQt5.QtWidgets as qw
 import sys
 import serial
@@ -69,7 +76,8 @@ class Timing_GUI(qw.QWidget):
                 lane      = self.Data[0]
                 seconds   = self.Data[1]
                 hund      = self.Data[3]
-                self.label1.setText("Lane 1 Finish: {:.2f} seconds".format(int(self.Data)/1000.0))
+                finalTime      = str(seconds) + str(hund)
+                self.label1.setText("Lane 1 Finish: {:.2f} seconds".format(int(self.finalTime)))
                 break      
         while 1:
             t = time.perf_counter() - t1
