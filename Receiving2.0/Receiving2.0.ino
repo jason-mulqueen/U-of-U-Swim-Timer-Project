@@ -67,7 +67,7 @@ void loop()
     if (radio.available())
       {
       //char t[32] = {0};
-      unsigned long receivedMessage[3];
+      unsigned int receivedMessage[3];
       radio.read(&receivedMessage, sizeof(receivedMessage));
       digitalWrite(LED, HIGH);
       

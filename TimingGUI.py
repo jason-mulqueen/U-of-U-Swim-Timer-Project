@@ -8,14 +8,16 @@ Created on Thu Jan 25 12:44:48 2018
 import PyQt5.QtWidgets as qw
 import sys
 import serial
+import serial.tools.list_ports
 import time
 
-arduino = serial.Serial("COM5", 9600)
+for port in list(serial.tools.list_ports.comports()):
+    if 'Arduino' in port.description:
+        arduino = serial.Serial(port[0], 9600)
 
 #Wait for Arduino to be ready to go
 while arduino.inWaiting() <= 0:
     continue
-
 myData = bytes.decode(arduino.readline()) #Read Ready singal to clear it out
 
 class Timing_GUI(qw.QWidget):
@@ -71,13 +73,23 @@ class Timing_GUI(qw.QWidget):
             self.label6.setText("Lane 6: {:.2f} seconds".format(t))
             qw.QApplication.processEvents()
             if (arduino.inWaiting() > 0):
-                self.Data = bytes.decode(arduino.readline())
+                self.Data = arduino.readline()
+                print("Received: ", self.Data)
+                self.Data = bytes.decode(self.Data)
+                print("Decoded to: ", self.Data)
                 self.Data = self.Data.split()
+                print("Split to: ", self.Data)
                 lane      = self.Data[0]
+                print("Lane = ", lane)
                 seconds   = self.Data[1]
-                hund      = self.Data[3]
-                finalTime      = str(seconds) + str(hund)
-                self.label1.setText("Lane 1 Finish: {:.2f} seconds".format(int(self.finalTime)))
+                print("Seconds = ", seconds)
+                hund      = self.Data[2]
+                if int(hund) < 10:
+                    hund = "0" + hund
+                print("Hundreths = ", hund)
+                finalTime      = str(seconds) + "." + str(hund)
+                print("Final Time: ", finalTime)
+                self.label1.setText("Lane 1 Finish: " + finalTime + " seconds")
                 break      
         while 1:
             t = time.perf_counter() - t1
