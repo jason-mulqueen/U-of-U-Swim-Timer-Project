@@ -1,0 +1,9 @@
+﻿Opening repositories:
+C:\Users\Kyle\Documents\GitHub\U-of-U-Swim-Timer-Project
+Error: failed to push some refs to 'https://github.com/jason-mulqueen/U-of-U-Swim-Timer-Project.git'
+Error: hint: Updates were rejected because the tip of your current branch is behind
+hint: its remote counterpart. Integrate the remote changes (e.g.
+hint: 'git pull ...') before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+
+Error encountered while pushing to the remote repository: rejected Updates were rejected because the tip of your current branch is behind its remote counterpart. Integrate the remote changes  before pushing again.
