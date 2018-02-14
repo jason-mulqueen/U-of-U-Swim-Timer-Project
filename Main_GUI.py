@@ -10,10 +10,15 @@ class Timing_GUI(qw.QWidget):
         self.title = "Basic Timing GUI"
         self.initUI()
         self.data = 0
-    
+
+    #--------------------------------------------------------------------
     def initUI(self):
+    #----------------
         """ Initializes the GUI elements. Called at GUI startup. """
         numberOfLanes = 6
+        self.times = []
+        for i in range(numberOfLanes):
+            self.times.append(' ')
 
         self.setWindowTitle(self.title)
         
@@ -40,8 +45,10 @@ class Timing_GUI(qw.QWidget):
         self.setGeometry(100, 100, 500, 200)
         self.setLayout(layout)
         self.show()
-    #---------------------------------------------------------------------------    
+
+    #---------------------------------------------------------------------------
     def sendSignal(self):
+    #---------------------
         """ Sends start signal to connected Arduino. Then enters a wait state until timing data has been received. """
 
         self.t1 = time.perf_counter() #This starts a timer for GUI purposes. Independent of actual time data
@@ -54,10 +61,11 @@ class Timing_GUI(qw.QWidget):
             heatFinish = updateTimes()
    
     #-------------------------------------------------------------------
-
     def updateTimes(self):
+    #----------------------
         """ Updates any received times and continues GUI clock """
         if readTime(): #Returns lane and time for any finishes that have come in
+            self.times[self.lane - 1] = self.finalTime
             self.labels[int(self.lane)].setText("Lane " + self.lane + "Finish: " + self.finalTime + " seconds")
             self.laneFinish[int(self.lane)] = True
 
@@ -74,8 +82,8 @@ class Timing_GUI(qw.QWidget):
             return False
 
     #------------------------------------------------------------
-
     def readTime(self):
+    #-------------------
         """ Checks for a time received from connected Arduino.
             Stores time and lane info in class-wide variables and returns true if time was received. """
         if (arduino.inWaiting() > 0):
@@ -95,11 +103,13 @@ class Timing_GUI(qw.QWidget):
             return False
     #--------------------------------------------------------
     def closePort(self):
+    #--------------------
         """ Closes the Port the arduino object is on. This is absolutely necessary to rerun code on the arduino. """
 
         arduino.close()
         self.button2.setText("Port Closed")
     #--------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     app = qw.QApplication(sys.argv)
