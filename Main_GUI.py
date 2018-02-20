@@ -1,6 +1,7 @@
 import PyQt5.QtWidgets as qw
 import time
 import sys
+from Event_Heat_Definitions import Event
 
 class Timing_GUI(qw.QWidget):
     """ This class is the main timing GUI for the entire project. """
@@ -10,6 +11,22 @@ class Timing_GUI(qw.QWidget):
         self.title = "Basic Timing GUI"
         self.initUI()
         self.data = 0
+
+        #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        #THIS NEEDS TO BE INPUT OPTION
+        #HARDCODED NOW FOR TESTING PURPOSES WHILE STUFF GETS SORTED
+        #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        self.currentEvent = Event(12, '11-12', 'Boys', '500', 'Cage Deathmatch', 3, 2)
+        # 3 heats, 2 lanes. Try it out yo
+        #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+        #Create list of booleans to store heat finish status
+        self.laneFinish = []
+        for i in range(numberOfLanes + 1):
+            self.labels.append(qw.QLabel(" "))
+            layout.addWidget(self.labels[i])
+            self.laneFinish.append(False)
 
     #--------------------------------------------------------------------
     def initUI(self):
@@ -27,11 +44,7 @@ class Timing_GUI(qw.QWidget):
         layout.addWidget(button)
         #Create a list of labels
         self.labels = []
-        self.laneFinish = []
-        for i in range(numberOfLanes + 1):
-            self.labels.append(qw.QLabel(" "))
-            layout.addWidget(self.labels[i])
-            self.laneFinish.append(False)
+        
 
         self.labels[0].setText("INCOMING TIMES:")
         self.button2 = qw.QPushButton("Close Serial Port")
@@ -104,7 +117,8 @@ class Timing_GUI(qw.QWidget):
     #--------------------------------------------------------
     def closePort(self):
     #--------------------
-        """ Closes the Port the arduino object is on. This is absolutely necessary to rerun code on the arduino. """
+        """ Closes the Port the arduino object is on. This is absolutely necessary to rerun code on the Arduino. Shouldn't appear
+        in final production code most likely however."""
 
         arduino.close()
         self.button2.setText("Port Closed")
