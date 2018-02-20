@@ -10,11 +10,15 @@ class HeatStructure():
         self.data = {}
         for lane in range(lanes):
             self.data[lane] = "null"
+
+    def lane(n):
+        return self.data[n]
         
         
 class Event():
     
-    def __init__(self, age_range, sex, dist, strk, number_of_heats):
+    def __init__(self, num, age_range, sex, dist, strk, number_of_heats):
+        self.number = num
         self.age      = age_range
         self.gender   = sex
         self.distance = dist
@@ -24,6 +28,11 @@ class Event():
         for i in range(int(number_of_heats)):
             heat = HeatStructure(8)
             self.heats.append(heat)
+
+    def recordEvent(outputFile):
+        with open(outputFile, 'a'):
+            outputFile.write()
+        return
             
 if __name__ == '__main__':
     heat = HeatStructure(8)
