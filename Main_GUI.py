@@ -7,10 +7,8 @@ class Timing_GUI(qw.QWidget):
     """ This class is the main timing GUI for the entire project. """
 
     def __init__(self):
-        super().__init__()
+        super().__init__() #Calls initialization function for QWidget class this is all built off of
         self.title = "Basic Timing GUI"
-        self.initUI()
-        self.data = 0
 
         #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         #THIS NEEDS TO BE INPUT OPTION
@@ -21,37 +19,58 @@ class Timing_GUI(qw.QWidget):
         #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
+        self.initUI(currentEvent.lanes, len(currentEvent.heats))
+        self.data = 0
+        self.outputFile = "Meet_Output.txt"
+
+        
+
+    #--------------------------------------------------------------------
+    def initUI(self, lane_count, heat_count):
+    #----------------
+        """ Initializes the GUI elements. Called at GUI startup. """
+        
+
+        self.setWindowTitle(self.title)
+        
+        #Define Layout
+        layout = qw.QVBoxLayout()
+
+        #Instantiate button to send START signal
+        go_button = qw.QPushButton("Go!")
+        layout.addWidget(go_button)
+
+        #Create a list of labels for lane info
+        self.labels = []
         #Create list of booleans to store heat finish status
         self.laneFinish = []
-        for i in range(numberOfLanes + 1):
+        for i in range(lane_count + 1):
             self.labels.append(qw.QLabel(" "))
             layout.addWidget(self.labels[i])
             self.laneFinish.append(False)
 
-    #--------------------------------------------------------------------
-    def initUI(self):
-    #----------------
-        """ Initializes the GUI elements. Called at GUI startup. """
-        numberOfLanes = 6
+        self.labels[0].setText("INCOMING TIMES:")
+
+        #Might as well create list to record lane times here as well, cuz whynot?????
         self.times = []
-        for i in range(numberOfLanes):
+        for i in range(lane_count):
             self.times.append(' ')
 
-        self.setWindowTitle(self.title)
-        
-        layout = qw.QVBoxLayout()
-        button = qw.QPushButton("Go!")
-        layout.addWidget(button)
-        #Create a list of labels
-        self.labels = []
-        
 
-        self.labels[0].setText("INCOMING TIMES:")
+        #Buttons
+        record_heat_button = qw.QPushButton("Record Heat")
+        record_event_button = qw.QPushButton("Record Event")
         self.button2 = qw.QPushButton("Close Serial Port")
+        #Add buttons to layout
+        layout.addWidget(record_heat_button)
+        layout.addWidget(record_event_button)
         layout.addWidget(self.button2)
         
         #Bind Events
         button.clicked.connect(self.sendSignal)
+        record_heat_button.clicked.connect(currentEvent.record_heat(self.times))
+        record_heat_button.clicked.connect(self.reset_heat_data)
+        record_event_button.clicked.connect(currentEvent.record_event)
         self.button2.clicked.connect(self.closePort)
         
         #Set geometry and layout and show GUI
@@ -71,7 +90,7 @@ class Timing_GUI(qw.QWidget):
 
         heatFinish = False
         while heatFinish is False:
-            heatFinish = updateTimes()
+            heatFinish = updateTimes() #Watches for and updates times. Returns true if heat is finished
    
     #-------------------------------------------------------------------
     def updateTimes(self):
@@ -114,6 +133,18 @@ class Timing_GUI(qw.QWidget):
             return True
         else:
             return False
+
+
+    #--------------------------------------------------------
+    def reset_heat_data():
+    #----------------------
+        for i in range(len(self.times)):
+            self.times[i] = ' '
+        for i in range(len(self.laneFinish)):
+            self.laneFinish[i] = False
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
     #--------------------------------------------------------
     def closePort(self):
     #--------------------
@@ -122,7 +153,16 @@ class Timing_GUI(qw.QWidget):
 
         arduino.close()
         self.button2.setText("Port Closed")
-    #--------------------------------------------------------
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    #------------------------------
+    def messageBox(self, message):
+    #----------------------------
+        """Handy utility for displaying messages"""
+        msg = qw.QMessageBox()
+        msg.setText(message)
+        msg.exec_()
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #---------------------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':

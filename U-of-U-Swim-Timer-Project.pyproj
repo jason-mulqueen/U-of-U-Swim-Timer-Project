@@ -24,7 +24,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Event_Heat_Definitions.py" />
-    <Compile Include="Heat Management.py" />
     <Compile Include="Main_Thread.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />

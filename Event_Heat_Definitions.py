@@ -5,6 +5,7 @@ Created on Wed Jan 31 13:45:13 2018
 @author: Kyle
 """
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class HeatStructure():
     
     def __init__(self, lanes):
@@ -15,7 +16,7 @@ class HeatStructure():
     def lane(n):
         return self.data[n]
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
         
         
 class Event():
@@ -38,12 +39,16 @@ class Event():
     #--------------------------------------------------------------------------------------------------------
     def record_heat(self, times):
     #-----------------------------
+        if times[0] is ' ':
+            return
+
         for idx, lane in enumerate(self.heats[counter - 1].data):
             lane = times[idx]
 
         counter = counter + 1
         if counter > len(self.heats):
-            return True #Use this signal to trigger GUI events at end of event
+            self.messageBox('Event is Finished.\n Please record event Data')
+            return
 
     #--------------------------------------------------------------------------------------------------------
     def record_event(outputFile):
@@ -59,6 +64,14 @@ class Event():
                 outputFile.write(" ")
             outputFile.write("----------------------------")
         return
+    #--------------------------------------------------------------------------------
+
+
+    #------------------------------------------------------------
+    def messageBox(self, message):
+        msg = qw.QMessageBox()
+        msg.setText(message)
+        msg.exec_()
 #-----------------------------------------------------------------------------------------------------------
             
 if __name__ == '__main__':
