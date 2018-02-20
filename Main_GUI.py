@@ -6,7 +6,10 @@ from Event_Heat_Definitions import Event
 class Timing_GUI(qw.QWidget):
     """ This class is the main timing GUI for the entire project. """
 
+    #---------------------------------------------------------------------------------------------------
     def __init__(self):
+        """Initialization function for main GUI class. Called on instance creation in main thread"""
+
         super().__init__() #Calls initialization function for QWidget class this is all built off of
         self.title = "Basic Timing GUI"
 
@@ -22,12 +25,12 @@ class Timing_GUI(qw.QWidget):
         self.initUI(currentEvent.lanes, len(currentEvent.heats))
         self.data = 0
         self.outputFile = "Meet_Output.txt"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         
 
     #--------------------------------------------------------------------
     def initUI(self, lane_count, heat_count):
-    #----------------
         """ Initializes the GUI elements. Called at GUI startup. """
         
 
@@ -77,10 +80,10 @@ class Timing_GUI(qw.QWidget):
         self.setGeometry(100, 100, 500, 200)
         self.setLayout(layout)
         self.show()
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     #---------------------------------------------------------------------------
     def sendSignal(self):
-    #---------------------
         """ Sends start signal to connected Arduino. Then enters a wait state until timing data has been received. """
 
         self.t1 = time.perf_counter() #This starts a timer for GUI purposes. Independent of actual time data
@@ -88,36 +91,42 @@ class Timing_GUI(qw.QWidget):
         #Send go signal to connected Arduino
         arduino.write(str.encode("1")) 
 
+        #This block is kind've ugly. It traps in the program in a loop checking for and updating time data until the heat finishes
         heatFinish = False
         while heatFinish is False:
             heatFinish = updateTimes() #Watches for and updates times. Returns true if heat is finished
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    
     #-------------------------------------------------------------------
     def updateTimes(self):
-    #----------------------
-        """ Updates any received times and continues GUI clock """
+        """ Records any received times from 'readTime()' and continues GUI clock """
+
+        #Check for and store time data
         if readTime(): #Returns lane and time for any finishes that have come in
             self.times[self.lane - 1] = self.finalTime
             self.labels[int(self.lane)].setText("Lane " + self.lane + "Finish: " + self.finalTime + " seconds")
             self.laneFinish[int(self.lane)] = True
 
+        #Update internal clock
         t = time.perf_counter() - self.t1
-
+        #Update time on GUI for any lanes still swimming
         for lane, laneLabel in enumerate(self.labels[1:]):
             if self.laneFinish[int(self.lane)] is False:
                 laneLabel.setText("Lane " + lane + ": {:.2f} seconds".format(t))
         qw.QApplication.processEvents() #This forces the GUI to process all the events above. Necessary for some unknown reason
         
+        #Check for heat completion
         if all(item is True for item in self.laneFinish):
             return True
         else:
             return False
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     #------------------------------------------------------------
     def readTime(self):
-    #-------------------
         """ Checks for a time received from connected Arduino.
             Stores time and lane info in class-wide variables and returns true if time was received. """
+
         if (arduino.inWaiting() > 0):
             data = arduino.readline()
             data = bytes.decode(self.Data)
@@ -133,11 +142,13 @@ class Timing_GUI(qw.QWidget):
             return True
         else:
             return False
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
     #--------------------------------------------------------
     def reset_heat_data():
-    #----------------------
+        """Resets the data structures for recording times and checking for lane finishes in preparation for next heat"""
+
         for i in range(len(self.times)):
             self.times[i] = ' '
         for i in range(len(self.laneFinish)):
@@ -147,7 +158,6 @@ class Timing_GUI(qw.QWidget):
 
     #--------------------------------------------------------
     def closePort(self):
-    #--------------------
         """ Closes the Port the arduino object is on. This is absolutely necessary to rerun code on the Arduino. Shouldn't appear
         in final production code most likely however."""
 
@@ -157,8 +167,8 @@ class Timing_GUI(qw.QWidget):
 
     #------------------------------
     def messageBox(self, message):
-    #----------------------------
         """Handy utility for displaying messages"""
+
         msg = qw.QMessageBox()
         msg.setText(message)
         msg.exec_()

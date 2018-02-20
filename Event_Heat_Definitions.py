@@ -7,19 +7,23 @@ Created on Wed Jan 31 13:45:13 2018
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class HeatStructure():
-    
+    """ Holds structure for a heat event. Consists of a list of length 'lanes' that stores time data"""
+
     def __init__(self, lanes):
         self.data = {}
         for lane in range(lanes):
             self.data[lane] = " "
 
     def lane(n):
+        """Call this function to access lane data in the heat. Basically an indexing tool"""
+
         return self.data[n]
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         
         
 class Event():
+    "Holds all neccesary info and functions for handling and recording events and included heats."""
     
     def __init__(self, num, age_range, sex, dist, strk, number_of_heats, lane_count):
         self.number   = num
@@ -38,7 +42,8 @@ class Event():
 
     #--------------------------------------------------------------------------------------------------------
     def record_heat(self, times):
-    #-----------------------------
+        """Stores recorded times for current heat to lanes in current heat object within current event instance"""
+
         if times[0] is ' ':
             return
 
@@ -52,7 +57,8 @@ class Event():
 
     #--------------------------------------------------------------------------------------------------------
     def record_event(outputFile):
-    #----------------------------
+        """Writes all event info, including heats and times, to output file"""
+
         with open(outputFile, 'a'):
             outputFile.write("-----------------------------")
             outputFile.write("Event {}".format(self.number))
@@ -69,6 +75,8 @@ class Event():
 
     #------------------------------------------------------------
     def messageBox(self, message):
+        """Convenient for displaying messages such as errors or relevant info to user"""
+
         msg = qw.QMessageBox()
         msg.setText(message)
         msg.exec_()

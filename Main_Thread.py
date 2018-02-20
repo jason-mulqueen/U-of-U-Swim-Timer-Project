@@ -6,7 +6,7 @@ import sys
 #Import custom libraries and classes - - - - -
 from Main_GUI import Timing_GUI
 import AuxFunctions as AF
-#---------------------------------------------------------------------------------------
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #Navigate to working directory, creating if necessary
 AF.nav_to_directory(os.path.join("C:\\Users", os.getlogin(), "Documents", "Swim Manager"))
