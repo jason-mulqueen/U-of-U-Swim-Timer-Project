@@ -72,7 +72,7 @@ class Timing_GUI(qw.QWidget):
         
         #Bind Events
         go_button.clicked.connect(self.sendSignal)
-        #record_heat_button.clicked.connect(self.currentEvent.record_heat(self.times))
+        record_heat_button.clicked.connect(self.record_heat)
         record_heat_button.clicked.connect(self.reset_heat_data)
         record_event_button.clicked.connect(self.currentEvent.record_event)
         self.button2.clicked.connect(self.closePort)
@@ -165,6 +165,14 @@ class Timing_GUI(qw.QWidget):
         arduino.close()
         self.button2.setText("Port Closed")
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    #--------------------------------------------------------------
+    def record_heat():
+        """Hack to properly call the Event.record_heat function"""
+
+        self.currentEvent.record_heat(self.times)
+        return
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     #------------------------------
     def messageBox(self, message):
