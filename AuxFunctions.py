@@ -1,5 +1,7 @@
 import os
-
+import sys
+import serial
+import PyQt5.QtWidgets as qw
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 def nav_to_directory(workingDirectory, outputFile):
@@ -31,7 +33,13 @@ def open_python_port():
 
 def wait_for_arduino_ready(arduino):
     """Waits for Arduino to be ready to go, then allows program to proceed"""
-
-    while arduino.inWaiting() <= 0:
-        continue
-    myData = bytes.decode(arduino.readline()) #Read Ready signal to clear it out
+    try:
+        while arduino.inWaiting() <= 0:
+            continue
+        myData = bytes.decode(arduino.readline()) #Read Ready signal to clear it out
+    except AttributeError:
+        app = qw.QApplication(sys.argv)
+        msg = qw.QMessageBox()
+        msg.setText("No Receiving Module Detected.\nPlease insert Receiver and try again.")
+        msg.exec_()
+        raise IOError("No Arduino Detected")
