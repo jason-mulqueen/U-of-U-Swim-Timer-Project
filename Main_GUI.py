@@ -13,7 +13,7 @@ class Timing_GUI(qw.QWidget):
     
     def initUI(self):
         """ Initializes the GUI elements. Called at GUI startup. """
-        numberOfLanes = 6
+        numberOfLanes = 2
 
         self.setWindowTitle(self.title)
         
