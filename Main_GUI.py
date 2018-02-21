@@ -7,11 +7,12 @@ class Timing_GUI(qw.QWidget):
     """ This class is the main timing GUI for the entire project. """
 
     #---------------------------------------------------------------------------------------------------
-    def __init__(self):
+    def __init__(self, ard):
         """Initialization function for main GUI class. Called on instance creation in main thread"""
 
         super().__init__() #Calls initialization function for QWidget class this is all built off of
         self.title = "Basic Timing GUI"
+        self.arduino = ard
 
         #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         #THIS NEEDS TO BE INPUT OPTION
@@ -22,8 +23,9 @@ class Timing_GUI(qw.QWidget):
         #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
-        self.initUI(currentEvent.lanes, len(currentEvent.heats))
+        self.initUI(self.currentEvent.lanes, len(self.currentEvent.heats))
         self.data = 0
+        self.lane = 0
         self.outputFile = "Meet_Output.txt"
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -43,16 +45,16 @@ class Timing_GUI(qw.QWidget):
         go_button = qw.QPushButton("Go!")
         layout.addWidget(go_button)
 
+        label2 = qw.QLabel("Incoming Times:")
+        layout.addWidget(label2)
         #Create a list of labels for lane info
         self.labels = []
         #Create list of booleans to store heat finish status
         self.laneFinish = []
-        for i in range(lane_count + 1):
+        for i in range(lane_count):
             self.labels.append(qw.QLabel(" "))
             layout.addWidget(self.labels[i])
             self.laneFinish.append(False)
-
-        self.labels[0].setText("INCOMING TIMES:")
 
         #Might as well create list to record lane times here as well, cuz whynot?????
         self.times = []
@@ -70,10 +72,10 @@ class Timing_GUI(qw.QWidget):
         layout.addWidget(self.button2)
         
         #Bind Events
-        button.clicked.connect(self.sendSignal)
-        record_heat_button.clicked.connect(currentEvent.record_heat(self.times))
+        go_button.clicked.connect(self.sendSignal)
+        #record_heat_button.clicked.connect(self.currentEvent.record_heat(self.times))
         record_heat_button.clicked.connect(self.reset_heat_data)
-        record_event_button.clicked.connect(currentEvent.record_event)
+        record_event_button.clicked.connect(self.currentEvent.record_event)
         self.button2.clicked.connect(self.closePort)
         
         #Set geometry and layout and show GUI
@@ -89,12 +91,12 @@ class Timing_GUI(qw.QWidget):
         self.t1 = time.perf_counter() #This starts a timer for GUI purposes. Independent of actual time data
 
         #Send go signal to connected Arduino
-        arduino.write(str.encode("1")) 
+        self.arduino.write(str.encode("1")) 
 
         #This block is kind've ugly. It traps in the program in a loop checking for and updating time data until the heat finishes
         heatFinish = False
         while heatFinish is False:
-            heatFinish = updateTimes() #Watches for and updates times. Returns true if heat is finished
+            heatFinish = self.updateTimes() #Watches for and updates times. Returns true if heat is finished
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    
     #-------------------------------------------------------------------
@@ -102,17 +104,17 @@ class Timing_GUI(qw.QWidget):
         """ Records any received times from 'readTime()' and continues GUI clock """
 
         #Check for and store time data
-        if readTime(): #Returns lane and time for any finishes that have come in
+        if self.readTime(): #Returns lane and time for any finishes that have come in
             self.times[self.lane - 1] = self.finalTime
-            self.labels[int(self.lane)].setText("Lane " + self.lane + "Finish: " + self.finalTime + " seconds")
-            self.laneFinish[int(self.lane)] = True
+            self.labels[int(self.lane) - 1].setText("Lane " + self.lane + "Finish: " + self.finalTime + " seconds")
+            self.laneFinish[int(self.lane) - 1] = True
 
         #Update internal clock
         t = time.perf_counter() - self.t1
         #Update time on GUI for any lanes still swimming
-        for lane, laneLabel in enumerate(self.labels[1:]):
-            if self.laneFinish[int(self.lane)] is False:
-                laneLabel.setText("Lane " + lane + ": {:.2f} seconds".format(t))
+        for lane, laneLabel in enumerate(self.labels):
+            if self.laneFinish[lane] is False:
+                laneLabel.setText("Lane " + str(lane + 1) + ": {:.2f} seconds".format(t))
         qw.QApplication.processEvents() #This forces the GUI to process all the events above. Necessary for some unknown reason
         
         #Check for heat completion
@@ -127,8 +129,8 @@ class Timing_GUI(qw.QWidget):
         """ Checks for a time received from connected Arduino.
             Stores time and lane info in class-wide variables and returns true if time was received. """
 
-        if (arduino.inWaiting() > 0):
-            data = arduino.readline()
+        if (self.arduino.inWaiting() > 0):
+            data = self.arduino.readline()
             data = bytes.decode(self.Data)
 
             data = data.split()

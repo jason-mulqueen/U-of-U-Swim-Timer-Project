@@ -37,7 +37,7 @@ class Event():
         self.heats    = []
         #Populate heats
         for i in range(int(number_of_heats)):
-            h = HeatStructure(lanes)
+            h = HeatStructure(self.lanes)
             self.heats.append(h)
 
     #--------------------------------------------------------------------------------------------------------

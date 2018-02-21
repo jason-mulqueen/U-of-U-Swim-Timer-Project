@@ -20,5 +20,5 @@ AF.wait_for_arduino_ready(arduino)
 
 #Run GUI------------------------
 app = QApplication(sys.argv)
-sudoku = Timing_GUI()
+sudoku = Timing_GUI(arduino)
 sys.exit(app.exec_())
