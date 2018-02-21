@@ -2,7 +2,7 @@
 import serial
 import serial.tools.list_ports
 import sys
-
+import PyQt5.QtWidgets as qw
 #Import custom libraries and classes
 from Main_GUI import Timing_GUI
 #---------------------------------------------------------------------------------------
@@ -21,5 +21,5 @@ myData = bytes.decode(arduino.readline()) #Read Ready signal to clear it out
 
 #Run GUI
 app = qw.QApplication(sys.argv)
-sudoku = Timing_GUI()
+sudoku = Timing_GUI(arduino)
 sys.exit(app.exec_())

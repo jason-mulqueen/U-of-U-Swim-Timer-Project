@@ -5,11 +5,13 @@ import sys
 class Timing_GUI(qw.QWidget):
     """ This class is the main timing GUI for the entire project. """
 
-    def __init__(self):
+    def __init__(self, ard):
         super().__init__()
         self.title = "Basic Timing GUI"
         self.initUI()
         self.data = 0
+        self.arduino = ard
+        self.lane = 0
     
     def initUI(self):
         """ Initializes the GUI elements. Called at GUI startup. """
@@ -20,15 +22,17 @@ class Timing_GUI(qw.QWidget):
         layout = qw.QVBoxLayout()
         button = qw.QPushButton("Go!")
         layout.addWidget(button)
+
+        label2 = qw.QLabel("Incoming Times:")
+        layout.addWidget(label2)
         #Create a list of labels
         self.labels = []
         self.laneFinish = []
-        for i in range(numberOfLanes + 1):
+        for i in range(numberOfLanes):
             self.labels.append(qw.QLabel(" "))
             layout.addWidget(self.labels[i])
             self.laneFinish.append(False)
 
-        self.labels[0].setText("INCOMING TIMES:")
         self.button2 = qw.QPushButton("Close Serial Port")
         layout.addWidget(self.button2)
         
@@ -47,27 +51,36 @@ class Timing_GUI(qw.QWidget):
         self.t1 = time.perf_counter() #This starts a timer for GUI purposes. Independent of actual time data
 
         #Send go signal to connected Arduino
-        arduino.write(str.encode("1")) 
+        self.arduino.write(str.encode("1")) 
 
         heatFinish = False
         while heatFinish is False:
-            heatFinish = updateTimes()
+            heatFinish = self.updateTimes()
+            #print("HeatFinish = ", heatFinish)
    
     #-------------------------------------------------------------------
 
     def updateTimes(self):
         """ Updates any received times and continues GUI clock """
-        if readTime(): #Returns lane and time for any finishes that have come in
-            self.labels[int(self.lane)].setText("Lane " + self.lane + "Finish: " + self.finalTime + " seconds")
-            self.laneFinish[int(self.lane)] = True
+        if self.readTime(): #Returns lane and time for any finishes that have come in
+            self.labels[int(self.lane) - 1].setText("Lane " + self.lane + " Finish: " + self.finalTime + " seconds")
+            self.laneFinish[int(self.lane) - 1] = True
 
         t = time.perf_counter() - self.t1
+        #print("t = ", t)
 
-        for lane, laneLabel in enumerate(self.labels[1:]):
-            if self.laneFinish[int(self.lane)] is False:
-                laneLabel.setText("Lane " + lane + ": {:.2f} seconds".format(t))
+        for lane, laneLabel in enumerate(self.labels):
+            #print('-----')
+            #print("Lane = ", lane)
+            #print("LaneFinish = ", self.laneFinish[int(self.lane) - 1])
+            #print('-----')
+            if self.laneFinish[lane] is False:
+                laneLabel.setText("Lane " + str(lane + 1) + ": {:.2f} seconds".format(t))
         qw.QApplication.processEvents() #This forces the GUI to process all the events above. Necessary for some unknown reason
         
+        #for item in self.laneFinish:
+            #print(item)
+
         if all(item is True for item in self.laneFinish):
             return True
         else:
@@ -78,9 +91,9 @@ class Timing_GUI(qw.QWidget):
     def readTime(self):
         """ Checks for a time received from connected Arduino.
             Stores time and lane info in class-wide variables and returns true if time was received. """
-        if (arduino.inWaiting() > 0):
-            data = arduino.readline()
-            data = bytes.decode(self.Data)
+        if (self.arduino.inWaiting() > 0):
+            data = self.arduino.readline()
+            data = bytes.decode(data)
 
             data = data.split()
             self.lane = data[0]
