@@ -24,7 +24,6 @@ class Timing_GUI(qw.QWidget):
 
 
         self.initUI(self.currentEvent.lanes, len(self.currentEvent.heats))
-        self.data = 0
         self.lane = 0
         self.outputFile = "Meet_Output.txt"
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -105,8 +104,8 @@ class Timing_GUI(qw.QWidget):
 
         #Check for and store time data
         if self.readTime(): #Returns lane and time for any finishes that have come in
-            self.times[self.lane - 1] = self.finalTime
-            self.labels[int(self.lane) - 1].setText("Lane " + self.lane + "Finish: " + self.finalTime + " seconds")
+            self.times[int(self.lane) - 1] = self.finalTime
+            self.labels[int(self.lane) - 1].setText("Lane " + self.lane + " Finish: " + self.finalTime + " seconds")
             self.laneFinish[int(self.lane) - 1] = True
 
         #Update internal clock
@@ -131,7 +130,7 @@ class Timing_GUI(qw.QWidget):
 
         if (self.arduino.inWaiting() > 0):
             data = self.arduino.readline()
-            data = bytes.decode(self.Data)
+            data = bytes.decode(data)
 
             data = data.split()
             self.lane = data[0]
