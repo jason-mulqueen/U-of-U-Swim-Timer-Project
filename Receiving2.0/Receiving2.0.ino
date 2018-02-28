@@ -6,13 +6,14 @@ int button = 9;
 unsigned int t1 = 0;
 unsigned int t2 = 0;
 bool buttonState;
-int message = 2;
+int message = 666;
 unsigned long t = 0;
 int LED = 30;
 
 RF24 radio(7, 8);
 
 const uint64_t rxAddr = 0xF0F0F0F0E1LL;
+const uint64_t txAddr = 0x28;
 
 void setup()
 {
@@ -23,18 +24,22 @@ void setup()
   Serial.begin(9600);
   
   radio.begin();
+  radio.setAutoAck(false);
   radio.setDataRate(RF24_250KBPS);
   radio.setRetries(8,15);
   radio.openReadingPipe(1, rxAddr);
-  radio.openWritingPipe(rxAddr);
+  radio.openWritingPipe(txAddr);
   radio.stopListening();
   
   Serial.println("Ready");
+  
   t = millis();
 }
 
 void loop()
 {
+  //radio.openWritingPipe(rxAddr);
+  //radio.stopListening();
   //Waiting to send some crap
   digitalWrite(LED, HIGH);
   
@@ -63,13 +68,15 @@ void loop()
   radio.startListening();
 
   //Listening for crap to come in
-  while (true){
+  bool heatFinish = false;
+  
+  while (heatFinish == false){
     if (radio.available())
       {
       //char t[32] = {0};
       unsigned int receivedMessage[3];
       radio.read(&receivedMessage, sizeof(receivedMessage));
-      digitalWrite(LED, HIGH);
+      
       
       //t2 = millis() - t1;
       String messageToSend = "";
@@ -78,11 +85,23 @@ void loop()
       Serial.println(messageToSend);
       //Serial.print("My Time = ");
       //Serial.println(t2);
-      break;
+      }
+      
+      if (Serial.available()){
+        
+       int state = Serial.read() - '0';
+       if (state == 9){ //If correct signal is received, begin doing stuff
+          heatFinish = true;
+          //digitalWrite(LED, HIGH);
+        }
+      }
+      
   }
-}
 
-  radio.openWritingPipe(rxAddr);
+  digitalWrite(LED, HIGH);
+
+
+ 
   radio.stopListening();
   
 }

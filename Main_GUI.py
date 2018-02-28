@@ -18,7 +18,7 @@ class Timing_GUI(qw.QWidget):
         #THIS NEEDS TO BE INPUT OPTION
         #HARDCODED NOW FOR TESTING PURPOSES WHILE STUFF GETS SORTED
         #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        self.currentEvent = Event(12, '11-12', 'Boys', '500', 'Cage Deathmatch', 3, 2)
+        self.currentEvent = Event(12, '11-12', 'Boys', '500', 'Cage Deathmatch', 2, 2)
         # 3 heats, 2 lanes. Try it out yo
         #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -72,7 +72,7 @@ class Timing_GUI(qw.QWidget):
         
         #Bind Events
         go_button.clicked.connect(self.sendSignal)
-        record_heat_button.clicked.connect(self.record_heat)
+        record_heat_button.clicked.connect(self.record_heat_GUI)
         record_heat_button.clicked.connect(self.reset_heat_data)
         record_event_button.clicked.connect(self.currentEvent.record_event)
         self.button2.clicked.connect(self.closePort)
@@ -96,6 +96,9 @@ class Timing_GUI(qw.QWidget):
         heatFinish = False
         while heatFinish is False:
             heatFinish = self.updateTimes() #Watches for and updates times. Returns true if heat is finished
+            if heatFinish is True:
+                self.arduino.write(str.encode("9"))
+        return
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    
     #-------------------------------------------------------------------
@@ -147,7 +150,7 @@ class Timing_GUI(qw.QWidget):
 
 
     #--------------------------------------------------------
-    def reset_heat_data():
+    def reset_heat_data(self):
         """Resets the data structures for recording times and checking for lane finishes in preparation for next heat"""
 
         for i in range(len(self.times)):
@@ -162,12 +165,13 @@ class Timing_GUI(qw.QWidget):
         """ Closes the Port the arduino object is on. This is absolutely necessary to rerun code on the Arduino. Shouldn't appear
         in final production code most likely however."""
 
-        arduino.close()
+        self.arduino.close()
         self.button2.setText("Port Closed")
+        sys.exit()
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     #--------------------------------------------------------------
-    def record_heat():
+    def record_heat_GUI(self):
         """Hack to properly call the Event.record_heat function"""
 
         self.currentEvent.record_heat(self.times)

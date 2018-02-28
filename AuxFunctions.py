@@ -19,6 +19,8 @@ def nav_to_directory(workingDirectory, outputFile):
 
     with open(filePath, 'w') as outputFile:
         outputFile.write("Something is working")
+    with open("Meet_Data.txt", 'w') as outputFile:
+        outputFile.write("Meet Data\n")
 
 #~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ 
 

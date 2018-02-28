@@ -72,6 +72,8 @@ void setup()
 
   Serial.begin(9600);
 
+  radio.setAutoAck(false);
+
 }
 
 
@@ -120,7 +122,7 @@ void loop()
 
         if (text == 2){
 
-          Serial.println("Yay");
+          //Serial.println("Yay");
 
             message = true;
 

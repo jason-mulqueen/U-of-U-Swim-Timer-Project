@@ -4,15 +4,16 @@ Created on Wed Jan 31 13:45:13 2018
 
 @author: Kyle
 """
+import PyQt5.QtWidgets as qw
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class HeatStructure():
     """ Holds structure for a heat event. Consists of a list of length 'lanes' that stores time data"""
 
     def __init__(self, lanes):
-        self.data = {}
+        self.data = []
         for lane in range(lanes):
-            self.data[lane] = " "
+            self.data.append(" ")
 
     def lane(n):
         """Call this function to access lane data in the heat. Basically an indexing tool"""
@@ -43,32 +44,31 @@ class Event():
     #--------------------------------------------------------------------------------------------------------
     def record_heat(self, times):
         """Stores recorded times for current heat to lanes in current heat object within current event instance"""
-
         if times[0] is ' ':
             return
 
-        for idx, lane in enumerate(self.heats[counter - 1].data):
-            lane = times[idx]
+        for idx in range(len(self.heats[self.counter - 1].data)):
+            self.heats[self.counter - 1].data[idx] = times[idx]
 
-        counter = counter + 1
-        if counter > len(self.heats):
+        self.counter = self.counter + 1
+        if self.counter > len(self.heats):
             self.messageBox('Event is Finished.\n Please record event Data')
             return
 
     #--------------------------------------------------------------------------------------------------------
-    def record_event(outputFile):
+    def record_event(self):
         """Writes all event info, including heats and times, to output file"""
 
-        with open(outputFile, 'a'):
-            outputFile.write("-----------------------------")
-            outputFile.write("Event {}".format(self.number))
-            outputFile.write("{0} {1} {2} {3}".format(self.age, self.gender, self.distance, self.stroke))
-            for i in len(self.heats):
-                outputFile.write("Heat {0} of {1}:".format(i, len(self.heats)))
-                for lane in len(self.heats[i].data):
-                    outputFile.write("Lane {0}: {1}".format(lane, self.heats[i].data[lane]))
-                outputFile.write(" ")
-            outputFile.write("----------------------------")
+        with open("Meet_Data.txt", "a") as outputFile:
+            outputFile.write("-----------------------------\n")
+            outputFile.write("Event {}: ".format(self.number))
+            outputFile.write("{0} {1} {2} {3}\n".format(self.age, self.gender, self.distance, self.stroke))
+            for i in range(len(self.heats)):
+                outputFile.write("Heat {0} of {1}:\n".format(i + 1, len(self.heats)))
+                for lane in range(len(self.heats[i].data)):
+                    outputFile.write("\tLane {0}: {1}\n".format(lane + 1, self.heats[i].data[lane]))
+                #outputFile.write(" ")
+            outputFile.write("----------------------------\n")
         return
     #--------------------------------------------------------------------------------
 
