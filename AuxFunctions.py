@@ -42,4 +42,4 @@ def wait_for_arduino_ready(arduino):
         msg = qw.QMessageBox()
         msg.setText("No Receiving Module Detected.\nPlease insert Receiver and try again.")
         msg.exec_()
-        raise IOError("No Arduino Detected")
+        sys.exit()
