@@ -18,7 +18,7 @@ class Timing_GUI(qw.QWidget):
         #THIS NEEDS TO BE INPUT OPTION
         #HARDCODED NOW FOR TESTING PURPOSES WHILE STUFF GETS SORTED
         #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        self.currentEvent = Event(12, '11-12', 'Boys', '500', 'Cage Deathmatch', 2, 2)
+        self.currentEvent = Event(12, '11-12', 'Boys', '500', 'Cage Deathmatch', 2, 6)
         # 3 heats, 2 lanes. Try it out yo
         #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -51,9 +51,13 @@ class Timing_GUI(qw.QWidget):
         #Create list of booleans to store heat finish status
         self.laneFinish = []
         for i in range(lane_count):
+            self.laneFinish.append(False)
+
+        #Handle dynamic creation of lane & time labels for each lane
+        for i in range(lane_count):
             self.labels.append(qw.QLabel(" "))
             layout.addWidget(self.labels[i])
-            self.laneFinish.append(False)
+            
 
         #Might as well create list to record lane times here as well, cuz whynot?????
         self.times = []
@@ -155,7 +159,6 @@ class Timing_GUI(qw.QWidget):
 
         for i in range(len(self.times)):
             self.times[i] = ' '
-        for i in range(len(self.laneFinish)):
             self.laneFinish[i] = False
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
