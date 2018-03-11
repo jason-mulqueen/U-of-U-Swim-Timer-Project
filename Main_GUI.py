@@ -112,7 +112,7 @@ class Timing_GUI(qw.QWidget):
         #Check for and store time data
         if self.readTime(): #Returns lane and time for any finishes that have come in
             self.times[int(self.lane) - 1] = self.finalTime
-            self.labels[int(self.lane) - 1].setText("Lane " + self.lane + " Finish: " + self.finalTime + " seconds")
+            self.labels[int(self.lane) - 1].setText("Lane " + self.lane + " Finish: " + self.finalTime)
             self.laneFinish[int(self.lane) - 1] = True
 
         #Update internal clock
@@ -120,7 +120,10 @@ class Timing_GUI(qw.QWidget):
         #Update time on GUI for any lanes still swimming
         for lane, laneLabel in enumerate(self.labels):
             if self.laneFinish[lane] is False:
-                laneLabel.setText("Lane " + str(lane + 1) + ": {:.2f} seconds".format(t))
+                if t//60 is True:
+                    laneLabel.setText("Lane " + str(lane + 1) + ":" + "{0}:".format(t//60) + "{:.2f} seconds".format(t - 60*(t//60)))
+                else:
+                    laneLabel.setText("Lane " + str(lane + 1) + ":" + "{:.2f} seconds".format(t))
         qw.QApplication.processEvents() #This forces the GUI to process all the events above. Necessary for some unknown reason
         
         #Check for heat completion
@@ -146,7 +149,11 @@ class Timing_GUI(qw.QWidget):
 
             if int(hund) < 10: # A single digit hundreths value will need a '0' appended to the front
                 hund = "0" + hund
-            self.finalTime      = str(seconds) + "." + str(hund)
+
+            if int(seconds) > 60:
+                self.finalTime = str(int(seconds)//60) + str(int(seconds) - 60*(int(seconds)//60)) + str(hund)
+            else:
+                self.finalTime      = str(seconds) + "." + str(hund)
             return True
         else:
             return False

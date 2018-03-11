@@ -14,13 +14,14 @@ def nav_to_directory(workingDirectory, outputFile):
         os.mkdir(workingDirectory)
         os.chdir(workingDirectory)
 
-    workingFile     = "heat_info.txt"
+    workingFile     = "dlhx0284F5.txt"
     filePath        = os.path.join(workingDirectory, workingFile)
 
     with open(filePath, 'w') as outputFile:
-        outputFile.write("Something is working")
+        outputFile.write("")
     with open("Meet_Data.txt", 'w') as outputFile:
         outputFile.write("Meet Data\n")
+        outputFile.write("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n")
 
 #~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ 
 
