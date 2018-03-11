@@ -162,7 +162,6 @@ class Timing_GUI(qw.QWidget):
             self.laneFinish[i] = False
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
     #--------------------------------------------------------
     def closePort(self):
         """ Closes the Port the arduino object is on. This is absolutely necessary to rerun code on the Arduino. Shouldn't appear

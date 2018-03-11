@@ -6,7 +6,8 @@ int button = 9;
 unsigned int t1 = 0;
 unsigned int t2 = 0;
 bool buttonState;
-int message = 666;
+int startSignal = 666;
+unsigned int confirmationCode = 24;
 unsigned long t = 0;
 int LED = 30;
 
@@ -49,9 +50,7 @@ void loop()
        int state = Serial.read() - '0';
        if (state == 1){ //If correct signal is received, begin doing stuff
         
-          //const char text[2] = "GO"
-      
-          radio.write(&message, sizeof(message));
+          radio.write(&startSignal, sizeof(startSignal));
           
          // t1 = millis();
           //Serial.println("Sent Stuff");
@@ -76,6 +75,14 @@ void loop()
       //char t[32] = {0};
       unsigned int receivedMessage[3];
       radio.read(&receivedMessage, sizeof(receivedMessage));
+
+      //Stuff to confirm receipt of message for robustness
+      radio.stopListening();
+      unsigned int confirmation[2];
+      confirmation[0] = receivedMessage[0];
+      confirmation[1] = confirmationCode;
+      radio.write(&confirmation, sizeof(confirmation));
+      radio.startListening;
       
       
       //t2 = millis() - t1;
