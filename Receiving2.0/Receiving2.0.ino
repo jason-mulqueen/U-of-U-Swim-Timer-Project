@@ -7,7 +7,8 @@ unsigned int t1 = 0;
 unsigned int t2 = 0;
 bool buttonState;
 int startSignal = 666;
-unsigned int confirmationCode = 24;
+int confirmationCode = 24;
+int configureCode    = 33;
 unsigned long t = 0;
 int LED = 30;
 
@@ -48,8 +49,17 @@ void loop()
   //Wait to receive signal to send start time signal
     if (Serial.available()){
        int state = Serial.read() - '0';
-       if (state == 1){ //If correct signal is received, begin doing stuff
-        
+       
+       if (state == 33){ //If "CONFIGURE" signal, do that
+        Serial.println("Configuring lanes");
+        configure_lanes();
+       }
+       
+       if (state == 1){ //If correct start signal is received, begin doing stuff
+          radio.write(&startSignal, sizeof(startSignal));
+          radio.write(&startSignal, sizeof(startSignal));
+          radio.write(&startSignal, sizeof(startSignal));
+          radio.write(&startSignal, sizeof(startSignal));
           radio.write(&startSignal, sizeof(startSignal));
           
          // t1 = millis();
@@ -75,14 +85,25 @@ void loop()
       //char t[32] = {0};
       unsigned int receivedMessage[3];
       radio.read(&receivedMessage, sizeof(receivedMessage));
+      //Serial.println("Received Stop Time");
 
       //Stuff to confirm receipt of message for robustness
       radio.stopListening();
-      unsigned int confirmation[2];
-      confirmation[0] = receivedMessage[0];
+      int confirmation[2];
+      confirmation[0] = (int)receivedMessage[0];
       confirmation[1] = confirmationCode;
       radio.write(&confirmation, sizeof(confirmation));
-      radio.startListening;
+      //radio.write(&confirmation, sizeof(confirmation));
+      //Serial.println("Sent Confirmation");
+      radio.startListening();
+
+      digitalWrite(LED,HIGH);
+      delay(150);
+      digitalWrite(LED,LOW);
+      delay(150);
+      digitalWrite(LED,HIGH);
+      delay(150);
+      digitalWrite(LED,LOW);
       
       
       //t2 = millis() - t1;
@@ -110,5 +131,56 @@ void loop()
 
  
   radio.stopListening();
+  
+}
+
+void configure_lanes(){
+  bool LED_state = HIGH;
+  unsigned long start_time = millis();
+  digitalWrite(LED, LED_state);
+  
+  int lane_count = 0;
+  
+  if (Serial.available()){
+       lane_count = Serial.read() - '0';
+  }
+
+  //Broadcast "CONFIGURE" signal
+  radio.setRetries(8,15);
+  radio.stopListening();
+  radio.write(&configureCode, sizeof(configureCode));
+  radio.startListening();
+
+  //Loop while listening for lanes
+  int lanes_received = 1;
+  while (lanes_received <= lane_count){
+
+    //LED stuff
+    unsigned long new_time = millis();
+    if (new_time - start_time >= 500){
+      start_time = new_time;
+      if (LED_state == LOW) {
+      LED_state = HIGH;
+    } else {
+      LED_state = LOW;
+    }
+    digitalWrite(LED, LED_state);  
+    }//End LED stuff
+    
+      if (radio.available()){
+      unsigned int timerID;
+      radio.read(&timerID, sizeof(timerID));
+      //Send out confirmation
+      radio.stopListening();
+      unsigned int assignment[3];
+      assignment[0] = timerID;
+      assignment[1] = confirmationCode;
+      assignment[2] = lanes_received;
+      radio.write(&assignment, sizeof(assignment));
+      Serial.println("Lane 1 Sent");
+      radio.startListening();
+  }
+  
+  }
   
 }

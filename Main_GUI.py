@@ -18,7 +18,7 @@ class Timing_GUI(qw.QWidget):
         #THIS NEEDS TO BE INPUT OPTION
         #HARDCODED NOW FOR TESTING PURPOSES WHILE STUFF GETS SORTED
         #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        self.currentEvent = Event(12, '11-12', 'Boys', '500', 'Cage Deathmatch', 2, 6)
+        self.currentEvent = Event(12, '11-12', 'Boys', '500', 'Cage Deathmatch', 10, 6)
         # 3 heats, 2 lanes. Try it out yo
         #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -120,10 +120,10 @@ class Timing_GUI(qw.QWidget):
         #Update time on GUI for any lanes still swimming
         for lane, laneLabel in enumerate(self.labels):
             if self.laneFinish[lane] is False:
-                if t//60 is True:
-                    laneLabel.setText("Lane " + str(lane + 1) + ":" + "{0}:".format(t//60) + "{:.2f} seconds".format(t - 60*(t//60)))
+                if t//60 >= 1:
+                    laneLabel.setText("Lane " + str(lane + 1) + ": " + "{0}:".format(int(t//60)) + "{:.2f}".format(t - 60*int(t//60)))
                 else:
-                    laneLabel.setText("Lane " + str(lane + 1) + ":" + "{:.2f} seconds".format(t))
+                    laneLabel.setText("Lane " + str(lane + 1) + ": " + "{:.2f}".format(t))
         qw.QApplication.processEvents() #This forces the GUI to process all the events above. Necessary for some unknown reason
         
         #Check for heat completion
@@ -147,11 +147,15 @@ class Timing_GUI(qw.QWidget):
             seconds   = data[1]
             hund      = data[2]
 
+            if seconds is "No Swimmer":
+                self.finalTime = "No Swimmer"
+                return True
+
             if int(hund) < 10: # A single digit hundreths value will need a '0' appended to the front
                 hund = "0" + hund
 
             if int(seconds) > 60:
-                self.finalTime = str(int(seconds)//60) + str(int(seconds) - 60*(int(seconds)//60)) + str(hund)
+                self.finalTime = str(int(seconds)//60) + ":" + str(int(seconds) - 60*(int(seconds)//60)) + "." + str(hund)
             else:
                 self.finalTime      = str(seconds) + "." + str(hund)
             return True

@@ -43,6 +43,7 @@ def wait_for_arduino_ready(arduino):
     except AttributeError:
         app = qw.QApplication(sys.argv)
         msg = qw.QMessageBox()
+        msg.setWindowTitle("Receiver Error")
         msg.setText("No Receiving Module Detected.\nPlease insert Receiver and try again.")
         msg.exec_()
         sys.exit()
