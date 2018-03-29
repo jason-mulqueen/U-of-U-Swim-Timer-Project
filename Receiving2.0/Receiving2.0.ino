@@ -97,13 +97,13 @@ void loop()
       //Serial.println("Sent Confirmation");
       radio.startListening();
 
-      digitalWrite(LED,HIGH);
-      delay(150);
-      digitalWrite(LED,LOW);
-      delay(150);
-      digitalWrite(LED,HIGH);
-      delay(150);
-      digitalWrite(LED,LOW);
+//      digitalWrite(LED,HIGH);
+//      delay(150);
+//      digitalWrite(LED,LOW);
+//      delay(150);
+//      digitalWrite(LED,HIGH);
+//      delay(150);
+//      digitalWrite(LED,LOW);
       
       
       //t2 = millis() - t1;
@@ -123,7 +123,6 @@ void loop()
           //digitalWrite(LED, HIGH);
         }
       }
-      
   }
 
   digitalWrite(LED, HIGH);

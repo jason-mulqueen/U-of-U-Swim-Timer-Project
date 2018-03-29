@@ -121,7 +121,10 @@ class Timing_GUI(qw.QWidget):
         for lane, laneLabel in enumerate(self.labels):
             if self.laneFinish[lane] is False:
                 if t//60 >= 1:
-                    laneLabel.setText("Lane " + str(lane + 1) + ": " + "{0}:".format(int(t//60)) + "{:.2f}".format(t - 60*int(t//60)))
+                    if (int(t) - 60*(int(t)//60)) < 10:
+                        laneLabel.setText("Lane " + str(lane + 1) + ": " + "{0}:".format(int(t//60)) + "0" + "{:.2f}".format(t - 60*int(t//60)))
+                    else:
+                        laneLabel.setText("Lane " + str(lane + 1) + ": " + "{0}:".format(int(t//60)) + "{:.2f}".format(t - 60*int(t//60)))
                 else:
                     laneLabel.setText("Lane " + str(lane + 1) + ": " + "{:.2f}".format(t))
         qw.QApplication.processEvents() #This forces the GUI to process all the events above. Necessary for some unknown reason
@@ -155,9 +158,12 @@ class Timing_GUI(qw.QWidget):
                 hund = "0" + hund
 
             if int(seconds) > 60:
-                self.finalTime = str(int(seconds)//60) + ":" + str(int(seconds) - 60*(int(seconds)//60)) + "." + str(hund)
+                if (int(seconds) - 60*(int(seconds)//60)) < 10:
+                    self.finalTime = str(int(seconds)//60) + ":" + "0" + str(int(seconds) - 60*(int(seconds)//60)) + "." + str(hund)
+                else:
+                    self.finalTime = str(int(seconds)//60) + ":" + str(int(seconds) - 60*(int(seconds)//60)) + "." + str(hund)
             else:
-                self.finalTime      = str(seconds) + "." + str(hund)
+                self.finalTime     = str(seconds) + "." + str(hund)
             return True
         else:
             return False

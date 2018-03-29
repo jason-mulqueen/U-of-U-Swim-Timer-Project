@@ -9,23 +9,13 @@ const uint64_t rxAddr = 0xF0F0F0F0E1LL;
 const uint64_t myAdd = 0x28;
 
 int button = 5;
-int resetButton = 9;//;
-bool resetButtonState = false;
-
-bool pressed = false; 
-
-bool sending = false;
-
+int resetButton = 6;//;
+bool resetButtonState = 0;
 unsigned long timer = 0;
-
 bool buttonState = 0;
-
 int goLED = 2;
-
 int stopLED = 4;
-
 unsigned int confirmationCode = 24;
-
 unsigned long resetPress = 0;
 //*****************************************************
 
@@ -59,12 +49,11 @@ void setup()
 void loop()
 {
 
-
 radio.startListening();
 
 //listening to the other radio
 Serial.println("Waiting...");
-    digitalWrite(stopLED,HIGH);
+digitalWrite(stopLED,HIGH);
 
 bool message = false;
 bool a = true;
@@ -92,9 +81,12 @@ while(!message){
         }//End radio.available if
                                       
       //Hande reset button press after accidental time send
-      if (digitalRead(resetButton) == LOW){
+      if (digitalRead(resetButton) == LOW && (millis() - resetPress > 500)){
           heatLooping = true;
           resetPress  = millis();
+          Serial.println("Back to timing");
+          digitalWrite(goLED,HIGH);
+          digitalWrite(stopLED,LOW);
           break;
          }
 }//End listening for message while
@@ -111,17 +103,55 @@ while(heatLooping == true){
 
   //If reset button pressed, send a no swimmer message
   if (resetButtonState == LOW && (millis() - resetPress > 500)){
-    Serial.println("1111111");
+    Serial.println("No Swimmer");
     resetPress = millis();
-    String voidState = "No Swimmer";
-    String fillerSpot = "Hi. I'm here for fun. Cheers!";
-    String messageToSend[3] = {String(identifier), voidState, fillerSpot};
+    unsigned int voidState = 999;
+    unsigned int fillerSpot = 69;
+    unsigned int messageToSend[3] = {nanoID, fillerSpot, voidState};
 
-    radio.write(&messageToSend, sizeof(messageToSend));
-    digitalWrite(goLED,LOW);
-    digitalWrite(stopLED,HIGH);
-    heatLooping == false;
+    //STUFF TO HANDLE CONFIRMATION OF TIME SIGNAL BEING SENT & RECEIVED BY RECEIVING UNIT
+    bool successfulComms = false;
+    while (successfulComms == false){
+
+      radio.write(&messageToSend, sizeof(messageToSend));
+      Serial.println("Sent");
+      radio.startListening();
+      Serial.println("Listening...");
+      unsigned int startListenTime = millis();
+      unsigned int listenTime = millis();
+      while (successfulComms == false || listenTime <= 20){
+        //Serial.println("Trying again");
+        if (radio.available()){
+          int conf[2];
+          Serial.println("RADIO WAS AVAIALABLE");
+          radio.read(&conf, sizeof(conf));
+          Serial.println(conf[0]);
+          Serial.println(conf[1]);
+            if ((conf[0]) == laneID){
+              Serial.println("correct identifier");
+                if ((conf[1]) == confirmationCode){
+                  Serial.println("correct confirationCode");
+                  successfulComms = true;
+                  break; //Break out of || while loop, we're good
+                }//End confirmation if
+            }// End identifier if
+          }//end radio.available() if
+          
+         listenTime = millis() - startListenTime;
+         }// End successfulComm/wait for confirmation while
+
+       radio.stopListening();
+       }//end sending/confirmation while (successfulComms == false)
+       
+      digitalWrite(goLED,LOW);
+      digitalWrite(stopLED,HIGH);
+      heatLooping = false;
   }//End reset button if
+
+
+
+
+
 
  //once the button is pressed send the time
   if (buttonState==LOW && heatLooping == true){
@@ -130,13 +160,13 @@ while(heatLooping == true){
     //Serial.println(capture);
     //send the time
     unsigned int seconds   = capture/1000;
-    String secondsString = String(seconds);
+    //String secondsString = String(seconds);
     unsigned int hundreths = (capture % 1000)/10;
-    String hundrethsString = String(seconds);
-    String identifierString = String(identifier);
-    String messageToSendString = identifierString +secondsString + hundrethsString;
+    //String hundrethsString = String(seconds);
+    //String identifierString = String(identifier);
+    //String messageToSendString = identifierString +secondsString + hundrethsString;
     //Serial.println(messageToSendString);
-    unsigned int messageToSend[3] = {identifier, seconds, hundreths};
+    unsigned int messageToSend[3] = {nanoID, seconds, hundreths};
     Serial.println(messageToSend[0]);
     Serial.println(messageToSend[1]);
     Serial.println(messageToSend[2]);
@@ -146,18 +176,20 @@ while(heatLooping == true){
     while (successfulComms == false){
 
       radio.write(&messageToSend, sizeof(messageToSend));
-      //        Serial.println("sent");
+      Serial.println("Sent");
       radio.startListening();
+      Serial.println("Listening...");
       unsigned int startListenTime = millis();
       unsigned int listenTime = millis();
       while (successfulComms == false || listenTime <= 20){
+        //Serial.println("Trying again");
         if (radio.available()){
           int conf[2];
           Serial.println("RADIO WAS AVAIALABLE");
           radio.read(&conf, sizeof(conf));
           Serial.println(conf[0]);
           Serial.println(conf[1]);
-            if ((conf[0]) == identifier){
+            if ((conf[0]) == laneID){
               Serial.println("correct identifier");
                 if ((conf[1]) == confirmationCode){
                   Serial.println("correct confirationCode");
@@ -189,7 +221,7 @@ void configure_lanes(){
       
     bool successfulComms = false;
     while (successfulComms == false){
-      int messageToSend = (String)nanoID;
+      String messageToSend = (String)nanoID;
       radio.write(&messageToSend, sizeof(messageToSend));
       //Serial.println("sent");
       radio.startListening();
