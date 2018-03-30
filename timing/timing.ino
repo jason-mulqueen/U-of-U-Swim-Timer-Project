@@ -184,7 +184,7 @@ while(heatLooping == true){
       Serial.println("Listening...");
       unsigned int startListenTime = millis();
       unsigned int listenTime = millis();
-      while (successfulComms == false || listenTime <= 20){
+      while (successfulComms == false && listenTime <= 40){
         //Serial.println("Trying again");
         if (radio.available()){
           int conf[2];
@@ -231,7 +231,7 @@ void configure_lanes(){
       radio.startListening();
       unsigned int startListenTime = millis();
       unsigned int listenTime = millis();
-      while (successfulComms == false || listenTime <= 20){
+      while (successfulComms == false && listenTime <= 40){
         if (radio.available()){
           int conf[3];
           Serial.println("RADIO WAS AVAIALABLE");
