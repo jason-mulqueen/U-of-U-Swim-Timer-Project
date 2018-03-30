@@ -24,8 +24,8 @@ unsigned long resetPress = 0;
 //--------------
 
 unsigned int identifier = 1;
-int nanoID = identifier;
-int laneID = nanoID;
+unsigned int nanoID = identifier;
+unsigned int laneID = nanoID;
 
 //******************************************************
 
@@ -111,45 +111,7 @@ while(heatLooping == true){
     unsigned int fillerSpot = 69;
     unsigned int messageToSend[3] = {nanoID, fillerSpot, voidState};
 
-    //STUFF TO HANDLE CONFIRMATION OF TIME SIGNAL BEING SENT & RECEIVED BY RECEIVING UNIT
-    bool successfulComms = false;
-    Serial.println("successfulComms set FALSE");
-    while (successfulComms == false){
-
-      radio.write(&messageToSend, sizeof(messageToSend));
-      Serial.println("Sent");
-      radio.startListening();
-      Serial.println("Listening...");
-      unsigned int startListenTime = millis();
-      unsigned int listenTime = 0;
-      while (successfulComms == false && listenTime <= 40){
-        Serial.println("Top of Listening Loop");
-        if (radio.available()){
-          int conf[2];
-          Serial.println("RADIO WAS AVAIALABLE");
-          radio.read(&conf, sizeof(conf));
-          Serial.println(conf[0]);
-          Serial.println(conf[1]);
-            if ((conf[0]) == laneID){
-              Serial.println("correct identifier");
-                if ((conf[1]) == confirmationCode){
-                  Serial.println("correct confirmationCode");
-                  successfulComms = true;
-                  break; //Break out of || while loop, we're good
-                }//End confirmation if
-            }// End identifier if
-          }//end radio.available() if
-          
-         listenTime = millis() - startListenTime;
-         }// End successfulComm/wait for confirmation while
-
-       radio.stopListening();
-       radio.flush_tx();
-       }//end sending/confirmation while (successfulComms == false)
-       
-      digitalWrite(goLED,LOW);
-      digitalWrite(stopLED,HIGH);
-      heatLooping = false;
+    heatLooping = send_w_ack(nanoID, fillerSpot, voidState);
   }//End reset button if
 
 
@@ -161,59 +123,10 @@ while(heatLooping == true){
   if (buttonState==LOW && heatLooping == true){
     //calculate the time
     unsigned long capture = millis()-timer;
-    //Serial.println(capture);
     //send the time
     unsigned int seconds   = capture/1000;
-    //String secondsString = String(seconds);
     unsigned int hundreths = (capture % 1000)/10;
-    //String hundrethsString = String(seconds);
-    //String identifierString = String(identifier);
-    //String messageToSendString = identifierString +secondsString + hundrethsString;
-    //Serial.println(messageToSendString);
-    unsigned int messageToSend[3] = {nanoID, seconds, hundreths};
-    Serial.println(messageToSend[0]);
-    Serial.println(messageToSend[1]);
-    Serial.println(messageToSend[2]);
-
-    //STUFF TO HANDLE CONFIRMATION OF TIME SIGNAL BEING SENT & RECEIVED BY RECEIVING UNIT
-    bool successfulComms = false;
-    Serial.println("successfulComms set FALSE");
-    while (successfulComms == false){
-
-      radio.write(&messageToSend, sizeof(messageToSend));
-      Serial.println("Sent");
-      radio.startListening();
-      Serial.println("Listening...");
-      unsigned int startListenTime = millis();
-      unsigned int listenTime = 0;
-      while (successfulComms == false && listenTime <= 40){
-        Serial.println("Top of Listening Loop");
-        if (radio.available()){
-          int conf[2];
-          Serial.println("RADIO WAS AVAIALABLE");
-          radio.read(&conf, sizeof(conf));
-          Serial.println(conf[0]);
-          Serial.println(conf[1]);
-            if ((conf[0]) == laneID){
-              Serial.println("correct identifier");
-                if ((conf[1]) == confirmationCode){
-                  Serial.println("correct confirmationCode");
-                  successfulComms = true;
-                  break; //Break out of && while loop, we're good
-                }//End confirmation if
-            }// End identifier if
-          }//end radio.available() if
-          
-         listenTime = millis() - startListenTime;
-         }// End successfulComm/wait for confirmation while
-
-       radio.stopListening();
-       radio.flush_tx();
-       }//end sending/confirmation while (successfulComms == false)
-       
-      digitalWrite(goLED,LOW);
-      digitalWrite(stopLED,HIGH);
-      heatLooping = false;
+    heatLooping = send_w_ack(nanoID, seconds, hundreths);
       }//End loop for timer button press. Setting heatLooping = false breaks out of that loop
 }// end while (heatLooping == true)
 }//End main loop
@@ -266,3 +179,55 @@ void configure_lanes(){
       break;
     }
  }
+
+ bool send_w_ack(unsigned int &a, unsigned int &b, unsigned int &c){
+
+  unsigned int messageToSend[3] = {a, b, c};
+    Serial.println(messageToSend[0]);
+    Serial.println(messageToSend[1]);
+    Serial.println(messageToSend[2]);
+
+    //STUFF TO HANDLE CONFIRMATION OF TIME SIGNAL BEING SENT & RECEIVED BY RECEIVING UNIT
+    bool successfulComms = false;
+    Serial.println("successfulComms set FALSE");
+    while (successfulComms == false){
+
+      radio.write(&messageToSend, sizeof(messageToSend));
+      Serial.println("Sent");
+      radio.startListening();
+      Serial.println("Listening...");
+      unsigned int startListenTime = millis();
+      unsigned int listenTime = 0;
+      while (successfulComms == false && listenTime <= 40){
+        Serial.println("Top of Listening Loop");
+        if (radio.available()){
+          int conf[2];
+          Serial.println("RADIO WAS AVAIALABLE");
+          radio.read(&conf, sizeof(conf));
+          Serial.println(conf[0]);
+          Serial.println(conf[1]);
+            if ((conf[0]) == laneID){
+              Serial.println("correct identifier");
+                if ((conf[1]) == confirmationCode){
+                  Serial.println("correct confirmationCode");
+                  successfulComms = true;
+                  break; //Break out of && while loop, we're good
+                }//End confirmation if
+            }// End identifier if
+          }//end radio.available() if
+          
+         listenTime = millis() - startListenTime;
+         }// End successfulComm/wait for confirmation while
+
+       radio.stopListening();
+       radio.flush_tx();
+       }//end sending/confirmation while (successfulComms == false)
+       
+      digitalWrite(goLED,LOW);
+      digitalWrite(stopLED,HIGH);
+      //heatLooping = false;
+
+      return true;
+  
+}
+
