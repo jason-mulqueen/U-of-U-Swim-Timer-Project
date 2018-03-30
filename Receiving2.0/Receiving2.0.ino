@@ -32,6 +32,7 @@ void setup()
   radio.openReadingPipe(1, rxAddr);
   radio.openWritingPipe(txAddr);
   radio.stopListening();
+  radio.flush_tx();
   
   Serial.println("Ready");
   
@@ -79,31 +80,35 @@ void loop()
   //Listening for crap to come in
   bool heatFinish = false;
   
+//      digitalWrite(LED,HIGH);
+//      delay(100);
+//      digitalWrite(LED,LOW);
+//      delay(100);
+//      digitalWrite(LED,HIGH);
+//      delay(100);
+//      digitalWrite(LED,LOW);
+      //Serial.println("Received Stop Time");
+      
   while (heatFinish == false){
     if (radio.available())
       {
       //char t[32] = {0};
       unsigned int receivedMessage[3];
       radio.read(&receivedMessage, sizeof(receivedMessage));
-      //Serial.println("Received Stop Time");
+
 
       //Stuff to confirm receipt of message for robustness
       radio.stopListening();
+      radio.flush_tx();
       int confirmation[2];
       confirmation[0] = (int)receivedMessage[0];
       confirmation[1] = confirmationCode;
       radio.write(&confirmation, sizeof(confirmation));
-      //radio.write(&confirmation, sizeof(confirmation));
+      radio.write(&confirmation, sizeof(confirmation));
       //Serial.println("Sent Confirmation");
       radio.startListening();
 
-//      digitalWrite(LED,HIGH);
-//      delay(150);
-//      digitalWrite(LED,LOW);
-//      delay(150);
-//      digitalWrite(LED,HIGH);
-//      delay(150);
-//      digitalWrite(LED,LOW);
+
       
       
       //t2 = millis() - t1;
@@ -130,6 +135,7 @@ void loop()
 
  
   radio.stopListening();
+  radio.flush_tx();
   
 }
 
@@ -147,6 +153,7 @@ void configure_lanes(){
   //Broadcast "CONFIGURE" signal
   radio.setRetries(8,15);
   radio.stopListening();
+  radio.flush_tx();
   radio.write(&configureCode, sizeof(configureCode));
   radio.startListening();
 
@@ -171,6 +178,7 @@ void configure_lanes(){
       radio.read(&timerID, sizeof(timerID));
       //Send out confirmation
       radio.stopListening();
+      radio.flush_tx();
       unsigned int assignment[3];
       assignment[0] = timerID;
       assignment[1] = confirmationCode;

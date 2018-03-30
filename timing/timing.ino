@@ -76,6 +76,7 @@ while(!message){
                 digitalWrite(goLED,HIGH);
                 digitalWrite(stopLED,LOW);
                 radio.stopListening();
+                radio.flush_tx();
                 heatLooping = true;
                 }//End 666 if
         }//End radio.available if
@@ -94,6 +95,7 @@ while(!message){
           
 //getting ready to send information
 radio.stopListening();
+radio.flush_tx();
 
 while(heatLooping == true){
 //waiting for button to be pressed
@@ -141,6 +143,7 @@ while(heatLooping == true){
          }// End successfulComm/wait for confirmation while
 
        radio.stopListening();
+       radio.flush_tx();
        }//end sending/confirmation while (successfulComms == false)
        
       digitalWrite(goLED,LOW);
@@ -203,6 +206,7 @@ while(heatLooping == true){
          }// End successfulComm/wait for confirmation while
 
        radio.stopListening();
+       radio.flush_tx();
        }//end sending/confirmation while (successfulComms == false)
        
       digitalWrite(goLED,LOW);
@@ -250,6 +254,7 @@ void configure_lanes(){
          }// End successfulComm/wait for confirmation while
 
        radio.stopListening();
+       radio.flush_tx();
        }//end sending/confirmation while (successfulComms == false)
        
       digitalWrite(goLED,LOW);

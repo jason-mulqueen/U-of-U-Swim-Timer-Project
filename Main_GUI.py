@@ -150,7 +150,7 @@ class Timing_GUI(qw.QWidget):
             seconds   = data[1]
             hund      = data[2]
 
-            if seconds is "No Swimmer":
+            if int(hund) is 999:
                 self.finalTime = "No Swimmer"
                 return True
 
