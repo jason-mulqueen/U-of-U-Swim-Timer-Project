@@ -94,7 +94,7 @@ void loop()
 
       //Stuff to confirm receipt of message for robustness
       radio.stopListening();
-      //radio.flush_tx();
+      radio.flush_tx();
       int confirmation[2];
       confirmation[0] = (int)receivedMessage[0];
       confirmation[1] = confirmationCode;

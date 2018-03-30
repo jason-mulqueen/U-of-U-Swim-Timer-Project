@@ -18,7 +18,7 @@ class Timing_GUI(qw.QWidget):
         #THIS NEEDS TO BE INPUT OPTION
         #HARDCODED NOW FOR TESTING PURPOSES WHILE STUFF GETS SORTED
         #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        self.currentEvent = Event(12, '11-12', 'Boys', '500', 'Cage Deathmatch', 10, 4)
+        self.currentEvent = Event(12, '11-12', 'Boys', '500', 'Cage Deathmatch', 10, 1)
         # 3 heats, 2 lanes. Try it out yo
         #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

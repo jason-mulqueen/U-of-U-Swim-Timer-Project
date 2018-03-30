@@ -63,13 +63,13 @@ bool heatLooping = true;
 while(!message){
     if(radio.available()){
         int text = 0;
-        Serial.println("receiving stuff");
+        Serial.println("Receiving...Checking Message:");
         radio.read(&text, sizeof(text));
         Serial.println(text);
         
         //checking for special message
             if (text == 666){
-                //Serial.println("Yay");
+                Serial.println("Starting Timing");
                 timer = millis();
                 message = true;
                 
@@ -113,6 +113,7 @@ while(heatLooping == true){
 
     //STUFF TO HANDLE CONFIRMATION OF TIME SIGNAL BEING SENT & RECEIVED BY RECEIVING UNIT
     bool successfulComms = false;
+    Serial.println("successfulComms set FALSE");
     while (successfulComms == false){
 
       radio.write(&messageToSend, sizeof(messageToSend));
@@ -120,9 +121,9 @@ while(heatLooping == true){
       radio.startListening();
       Serial.println("Listening...");
       unsigned int startListenTime = millis();
-      unsigned int listenTime = millis();
+      unsigned int listenTime = 0;
       while (successfulComms == false && listenTime <= 40){
-        //Serial.println("Trying again");
+        Serial.println("Top of Listening Loop");
         if (radio.available()){
           int conf[2];
           Serial.println("RADIO WAS AVAIALABLE");
@@ -132,7 +133,7 @@ while(heatLooping == true){
             if ((conf[0]) == laneID){
               Serial.println("correct identifier");
                 if ((conf[1]) == confirmationCode){
-                  Serial.println("correct confirationCode");
+                  Serial.println("correct confirmationCode");
                   successfulComms = true;
                   break; //Break out of || while loop, we're good
                 }//End confirmation if
@@ -196,9 +197,9 @@ while(heatLooping == true){
             if ((conf[0]) == laneID){
               Serial.println("correct identifier");
                 if ((conf[1]) == confirmationCode){
-                  Serial.println("correct confirationCode");
+                  Serial.println("correct confirmationCode");
                   successfulComms = true;
-                  break; //Break out of || while loop, we're good
+                  break; //Break out of && while loop, we're good
                 }//End confirmation if
             }// End identifier if
           }//end radio.available() if
