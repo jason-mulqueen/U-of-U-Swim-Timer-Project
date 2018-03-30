@@ -62,6 +62,7 @@ void loop()
           radio.write(&startSignal, sizeof(startSignal));
           radio.write(&startSignal, sizeof(startSignal));
           radio.write(&startSignal, sizeof(startSignal));
+          digitalWrite(LED, LOW);
           
          // t1 = millis();
           //Serial.println("Sent Stuff");
@@ -72,21 +73,15 @@ void loop()
 
 
   //After Sending Stuff, setup radio for listening
-  digitalWrite(LED, LOW);
+  
   
   
   radio.startListening();
 
   //Listening for crap to come in
   bool heatFinish = false;
-  
-//      digitalWrite(LED,HIGH);
-//      delay(100);
-//      digitalWrite(LED,LOW);
-//      delay(100);
-//      digitalWrite(LED,HIGH);
-//      delay(100);
-//      digitalWrite(LED,LOW);
+ 
+
       //Serial.println("Received Stop Time");
       
   while (heatFinish == false){
@@ -99,12 +94,19 @@ void loop()
 
       //Stuff to confirm receipt of message for robustness
       radio.stopListening();
-      radio.flush_tx();
+      //radio.flush_tx();
       int confirmation[2];
       confirmation[0] = (int)receivedMessage[0];
       confirmation[1] = confirmationCode;
       radio.write(&confirmation, sizeof(confirmation));
       radio.write(&confirmation, sizeof(confirmation));
+      digitalWrite(LED,HIGH);
+      delay(100);
+      digitalWrite(LED,LOW);
+      delay(100);
+      digitalWrite(LED,HIGH);
+      delay(100);
+      digitalWrite(LED,LOW);
       //Serial.println("Sent Confirmation");
       radio.startListening();
 

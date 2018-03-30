@@ -121,7 +121,7 @@ while(heatLooping == true){
       Serial.println("Listening...");
       unsigned int startListenTime = millis();
       unsigned int listenTime = millis();
-      while (successfulComms == false || listenTime <= 20){
+      while (successfulComms == false && listenTime <= 40){
         //Serial.println("Trying again");
         if (radio.available()){
           int conf[2];
@@ -176,6 +176,7 @@ while(heatLooping == true){
 
     //STUFF TO HANDLE CONFIRMATION OF TIME SIGNAL BEING SENT & RECEIVED BY RECEIVING UNIT
     bool successfulComms = false;
+    Serial.println("successfulComms set FALSE");
     while (successfulComms == false){
 
       radio.write(&messageToSend, sizeof(messageToSend));
@@ -183,9 +184,9 @@ while(heatLooping == true){
       radio.startListening();
       Serial.println("Listening...");
       unsigned int startListenTime = millis();
-      unsigned int listenTime = millis();
+      unsigned int listenTime = 0;
       while (successfulComms == false && listenTime <= 40){
-        //Serial.println("Trying again");
+        Serial.println("Top of Listening Loop");
         if (radio.available()){
           int conf[2];
           Serial.println("RADIO WAS AVAIALABLE");
