@@ -212,29 +212,31 @@ void configure_lanes(){
           }//end radio.available() if
           
          listenTime = millis() - startListenTime;
-       
-       radio.flush_tx();
-       radio.begin();
-       radio.setAutoAck(false);
-       radio.setDataRate(RF24_250KBPS);
-       radio.setRetries(8,15);
-       radio.openWritingPipe(rxAddr);
-       radio.openReadingPipe(1, myAdd);
-       radio.stopListening();
-         }// End successfulComm/wait for confirmation while
 
-       
-       radio.flush_tx();
+         }// End successfulComm && listenTime for confirmation while
+         
        radio.begin();
        radio.setAutoAck(false);
        radio.setDataRate(RF24_250KBPS);
        radio.setRetries(8,15);
        radio.openWritingPipe(rxAddr);
        radio.openReadingPipe(1, myAdd);
+       radio.flush_tx();
        radio.stopListening();
+       
+
        
        }//end while (successfulComms == false)
        
+       radio.flush_tx();
+       radio.begin();
+       radio.setAutoAck(false);
+       radio.setDataRate(RF24_250KBPS);
+       radio.setRetries(8,15);
+       radio.openWritingPipe(rxAddr);
+       radio.openReadingPipe(1, myAdd);
+       radio.flush_tx();
+       radio.stopListening();
       digitalWrite(goLED,LOW);
       digitalWrite(stopLED,HIGH);
       //heatLooping = false;
