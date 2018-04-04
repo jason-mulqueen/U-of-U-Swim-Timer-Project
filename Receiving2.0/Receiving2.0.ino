@@ -100,13 +100,14 @@ void loop()
       confirmation[1] = confirmationCode;
       radio.write(&confirmation, sizeof(confirmation));
       radio.write(&confirmation, sizeof(confirmation));
-      digitalWrite(LED,HIGH);
-      delay(100);
-      digitalWrite(LED,LOW);
-      delay(100);
-      digitalWrite(LED,HIGH);
-      delay(100);
-      digitalWrite(LED,LOW);
+      radio.write(&confirmation, sizeof(confirmation));
+//      digitalWrite(LED,HIGH);
+//      delay(100);
+//      digitalWrite(LED,LOW);
+//      delay(100);
+//      digitalWrite(LED,HIGH);
+//      delay(100);
+//      digitalWrite(LED,LOW);
       //Serial.println("Sent Confirmation");
       radio.startListening();
 

@@ -18,7 +18,7 @@ class Timing_GUI(qw.QWidget):
         #THIS NEEDS TO BE INPUT OPTION
         #HARDCODED NOW FOR TESTING PURPOSES WHILE STUFF GETS SORTED
         #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        self.currentEvent = Event(12, '11-12', 'Boys', '500', 'Cage Deathmatch', 10, 1)
+        self.currentEvent = Event(12, '11-12', 'Boys', '500', 'Cage Deathmatch', 20, 1)
         # 3 heats, 2 lanes. Try it out yo
         #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -100,8 +100,8 @@ class Timing_GUI(qw.QWidget):
         heatFinish = False
         while heatFinish is False:
             heatFinish = self.updateTimes() #Watches for and updates times. Returns true if heat is finished
-            if heatFinish is True:
-                self.arduino.write(str.encode("9"))
+            #if heatFinish is True:
+             #   self.arduino.write(str.encode("9"))
         return
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    
@@ -177,6 +177,8 @@ class Timing_GUI(qw.QWidget):
         for i in range(len(self.times)):
             self.times[i] = ' '
             self.laneFinish[i] = False
+
+        self.arduino.write(str.encode("9"))
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     #--------------------------------------------------------

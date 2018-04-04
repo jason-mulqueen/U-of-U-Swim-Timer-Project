@@ -110,14 +110,8 @@ while(heatLooping == true){
     unsigned int voidState = 999;
     unsigned int fillerSpot = 69;
     unsigned int messageToSend[3] = {nanoID, fillerSpot, voidState};
-
     heatLooping = send_w_ack(nanoID, fillerSpot, voidState);
   }//End reset button if
-
-
-
-
-
 
  //once the button is pressed send the time
   if (buttonState==LOW && heatLooping == true){
@@ -127,6 +121,7 @@ while(heatLooping == true){
     unsigned int seconds   = capture/1000;
     unsigned int hundreths = (capture % 1000)/10;
     heatLooping = send_w_ack(nanoID, seconds, hundreths);
+    
       }//End loop for timer button press. Setting heatLooping = false breaks out of that loop
 }// end while (heatLooping == true)
 }//End main loop
@@ -189,13 +184,13 @@ void configure_lanes(){
 
     //STUFF TO HANDLE CONFIRMATION OF TIME SIGNAL BEING SENT & RECEIVED BY RECEIVING UNIT
     bool successfulComms = false;
-    Serial.println("successfulComms set FALSE");
     while (successfulComms == false){
 
       radio.write(&messageToSend, sizeof(messageToSend));
+      //radio.txStandBy();
       Serial.println("Sent");
       radio.startListening();
-      Serial.println("Listening...");
+      //Serial.println("Listening...");
       unsigned int startListenTime = millis();
       unsigned int listenTime = 0;
       while (successfulComms == false && listenTime <= 40){
@@ -217,17 +212,34 @@ void configure_lanes(){
           }//end radio.available() if
           
          listenTime = millis() - startListenTime;
+       
+       radio.flush_tx();
+       radio.begin();
+       radio.setAutoAck(false);
+       radio.setDataRate(RF24_250KBPS);
+       radio.setRetries(8,15);
+       radio.openWritingPipe(rxAddr);
+       radio.openReadingPipe(1, myAdd);
+       radio.stopListening();
          }// End successfulComm/wait for confirmation while
 
-       radio.stopListening();
+       
        radio.flush_tx();
-       }//end sending/confirmation while (successfulComms == false)
+       radio.begin();
+       radio.setAutoAck(false);
+       radio.setDataRate(RF24_250KBPS);
+       radio.setRetries(8,15);
+       radio.openWritingPipe(rxAddr);
+       radio.openReadingPipe(1, myAdd);
+       radio.stopListening();
+       
+       }//end while (successfulComms == false)
        
       digitalWrite(goLED,LOW);
       digitalWrite(stopLED,HIGH);
       //heatLooping = false;
 
-      return true;
+      return false;
   
 }
 
