@@ -129,6 +129,14 @@ void loop()
        if (state == 9){ //If correct signal is received, begin doing stuff
           heatFinish = true;
           //digitalWrite(LED, HIGH);
+          radio.begin();
+          radio.setAutoAck(false);
+          radio.setDataRate(RF24_250KBPS);
+          radio.setRetries(8,15);
+          radio.openReadingPipe(1, rxAddr);
+          radio.openWritingPipe(txAddr);
+          radio.stopListening();
+          radio.flush_tx();
         }
       }
   }

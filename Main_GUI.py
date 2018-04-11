@@ -94,7 +94,8 @@ class Timing_GUI(qw.QWidget):
         self.t1 = time.perf_counter() #This starts a timer for GUI purposes. Independent of actual time data
 
         #Send go signal to connected Arduino
-        self.arduino.write(str.encode("1")) 
+        self.arduino.write(str.encode("1"))
+        
 
         #This block is kind've ugly. It traps in the program in a loop checking for and updating time data until the heat finishes
         heatFinish = False
@@ -177,8 +178,17 @@ class Timing_GUI(qw.QWidget):
         for i in range(len(self.times)):
             self.times[i] = ' '
             self.laneFinish[i] = False
+        
 
-        self.arduino.write(str.encode("9"))
+        self.arduino.reset_input_buffer()
+        self.arduino.reset_output_buffer()
+
+        #Provide confirmation for user by resetting labels to show message
+        for laneLabel in self.labels:
+            laneLabel.setText("Waiting for Start")
+
+        #Clear out serial buffer so any residual time messages don't affect the next heat
+        
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     #--------------------------------------------------------
@@ -194,7 +204,7 @@ class Timing_GUI(qw.QWidget):
     #--------------------------------------------------------------
     def record_heat_GUI(self):
         """Hack to properly call the Event.record_heat function"""
-
+        self.arduino.write(str.encode("9"))
         self.currentEvent.record_heat(self.times)
         return
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
