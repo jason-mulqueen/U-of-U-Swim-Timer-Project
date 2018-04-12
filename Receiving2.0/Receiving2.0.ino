@@ -137,6 +137,7 @@ void loop()
           radio.openWritingPipe(txAddr);
           radio.stopListening();
           radio.flush_tx();
+          //Serial.flush();
         }
       }
   }
