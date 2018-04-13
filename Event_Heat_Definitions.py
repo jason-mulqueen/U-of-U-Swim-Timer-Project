@@ -45,10 +45,8 @@ class Event():
     def record_heat(self, times):
         """Stores recorded times for current heat to lanes in current heat object within current event instance"""
         
-        print("RECORDING HEAT INFO")
-
+        blank_time = False
         for idx in range(len(self.heats[self.counter - 1].data)):
-            blank_time = False
             if times[idx] is ' ':
                 times[idx] = "No Time Recorded"
                 blank_time = True
@@ -56,7 +54,7 @@ class Event():
             self.messageBox("One or more lanes did not record a time")
 
 
-            self.heats[self.counter - 1].data[idx] = times[idx]
+        self.heats[self.counter - 1].data[idx] = times[idx]
 
         self.counter = self.counter + 1
         if self.counter > len(self.heats):
@@ -66,8 +64,6 @@ class Event():
     #--------------------------------------------------------------------------------------------------------
     def record_event(self, outputFilename):
         """Writes all event info, including heats and times, to output file"""
-
-        print("ENTERED EVENT.RECORD_EVENT() FUNCTION")
 
         with open(outputFilename, "a") as outputFile:
             outputFile.write("-----------------------------\n")
