@@ -25,6 +25,12 @@
     </Compile>
     <Compile Include="Event_Heat_Definitions.py" />
     <Compile Include="Main_Thread.py" />
+    <Compile Include="Event_Wizard.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Main_Window.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>

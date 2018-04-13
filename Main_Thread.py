@@ -8,6 +8,7 @@ import os
 
 #Import custom libraries and classes
 from Main_GUI import Timing_GUI
+from Main_Window import UI_MainWindow
 import AuxFunctions as AF
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -22,4 +23,12 @@ AF.wait_for_arduino_ready(arduino)
 #Run GUI
 app = QApplication(sys.argv)
 sudoku = Timing_GUI(arduino)
+sys.exit(app.exec_())
+
+app = QtWidgets.QApplication(sys.argv)
+MainWindow = QtWidgets.QMainWindow()
+ui = Ui_MainWindow(arduino)
+ui.setupUi(MainWindow)
+
+MainWindow.show()
 sys.exit(app.exec_())
