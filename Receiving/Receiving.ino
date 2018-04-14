@@ -221,26 +221,10 @@ void configure_lanes() {
   unsigned int apocalypse = {exitConfigureCode, exitConfigureCode, exitConfigureCode};
   radio.stopListening();
   radio.flush_tx();
-  radio.write(&exitconfigureCode, sizeof(exitconfigureCode));
-  radio.write(&exitconfigureCode, sizeof(exitconfigureCode));
-  radio.write(&exitconfigureCode, sizeof(exitconfigureCode));
-  radio.write(&exitconfigureCode, sizeof(exitconfigureCode));
-  radio.write(&exitconfigureCode, sizeof(exitconfigureCode));
-  radio.write(&exitconfigureCode, sizeof(exitconfigureCode));
-  radio.write(&exitconfigureCode, sizeof(exitconfigureCode));
-  radio.write(&exitconfigureCode, sizeof(exitconfigureCode));
-  radio.write(&exitconfigureCode, sizeof(exitconfigureCode));
-  radio.write(&exitconfigureCode, sizeof(exitconfigureCode));
-  radio.write(&exitconfigureCode, sizeof(exitconfigureCode));
-  radio.write(&exitconfigureCode, sizeof(exitconfigureCode));
-  radio.write(&exitconfigureCode, sizeof(exitconfigureCode));
-  radio.write(&exitconfigureCode, sizeof(exitconfigureCode));
-  radio.write(&exitconfigureCode, sizeof(exitconfigureCode));
-  radio.write(&exitconfigureCode, sizeof(exitconfigureCode));
-  radio.write(&exitconfigureCode, sizeof(exitconfigureCode));
-  radio.write(&exitconfigureCode, sizeof(exitconfigureCode));
-  radio.write(&exitconfigureCode, sizeof(exitconfigureCode));
-  radio.write(&exitconfigureCode, sizeof(exitconfigureCode));
+  
+  for (int z = 0, z < 15, z++) {
+    radio.write(&exitconfigureCode, sizeof(exitconfigureCode));
+  }
 
 
 

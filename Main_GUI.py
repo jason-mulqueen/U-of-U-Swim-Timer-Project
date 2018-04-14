@@ -35,6 +35,7 @@ class Ui_MainWindow(QMainWindow):
         centralWidget = QWidget(self)          
         self.setCentralWidget(centralWidget)
 
+        self.output_File = "Meet_Data.txt"
         self.arduino = ard
  
         # Create combobox and add items.
@@ -930,18 +931,47 @@ class Ui_MainWindow(QMainWindow):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
+
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        self.statusbar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusbar)
+        self.menuBar = QtWidgets.QMenuBar(MainWindow)
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 1321, 47))
+        self.menuBar.setObjectName("menuBar")
+        self.menuOptions = QtWidgets.QMenu(self.menuBar)
+        self.menuOptions.setObjectName("menuOptions")
+        MainWindow.setMenuBar(self.menuBar)
+        self.actionsave_file = QtWidgets.QAction(MainWindow)
+        self.actionsave_file.setObjectName("actionsave_file")
+        self.actionopen_new_file = QtWidgets.QAction(MainWindow)
+        self.actionopen_new_file.setObjectName("actionopen_new_file")
+        self.actionAdded_Options = QtWidgets.QAction(MainWindow)
+        self.actionAdded_Options.setObjectName("actionAdded_Options")
+        self.actionOptions = QtWidgets.QAction(MainWindow)
+        self.actionOptions.setObjectName("actionOptions")
+        self.actionConfigure_Timers = QtWidgets.QAction(MainWindow)
+        self.actionConfigure_Timers.setObjectName("actionConfigure_Timers")
+        self.menuOptions.addAction(self.actionConfigure_Timers)
+        self.actionMeet_Name = QtWidgets.QAction(MainWindow)
+        self.actionMeet_Name.setObjectName("meet_name")
+        self.menuOptions.addAction(self.actionMeet_Name)
+        self.menuBar.addAction(self.menuOptions.menuAction())
+
+        self.actionConfigure_Timers.triggered.connect(self.configure_lanes)
+        self.actionMeet_Name.triggered.connect(self.enter_meet_info)
+
         self.retranslateUi(MainWindow, lane_count)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
         self.end_meet_button.clicked.connect(MainWindow.close)
 
 
-        mainMenu = self.menuBar() 
-        fileMenu = mainMenu.addMenu('File')
+        
 
     def retranslateUi(self, MainWindow, lane_count):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Swim Manager"))
         self.label_15.setText(_translate("MainWindow", "Event Number"))
         self.label_14.setText(_translate("MainWindow", "Age"))
         self.label_13.setText(_translate("MainWindow", "Gender"))
@@ -959,6 +989,14 @@ class Ui_MainWindow(QMainWindow):
         self.end_meet_button.setText(_translate("MainWindow", "End Meet"))
         self.label_9.setText(_translate("MainWindow", "     Current Event Information                                "))
 
+
+        self.menuOptions.setTitle(_translate("Main_Window", "Options"))
+        self.actionsave_file.setText(_translate("Main_Window", "save file"))
+        self.actionopen_new_file.setText(_translate("Main_Window", "open new file"))
+        self.actionAdded_Options.setText(_translate("Main_Window", "Added Options"))
+        self.actionOptions.setText(_translate("Main_Window", "Options"))
+        self.actionConfigure_Timers.setText(_translate("Main_Window", "Configure Timers"))
+        self.actionMeet_Name.setText(_translate("Main_Window", "Name Meet"))
 #---------------------------------------------------------------------------
     def sendSignal(self):
         """ Sends start signal to connected Arduino. Then enters a wait state until timing data has been received. """
@@ -1079,8 +1117,14 @@ class Ui_MainWindow(QMainWindow):
         self.end_meet_button.setText("Port Closed")
         sys.exit()
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def record_event_GUI(self, filename):
-        self.currentEvent.record_event("Meet_Data.txt")
+
+    #---------------------------------------------------------
+    def record_event_GUI(self):
+        "Hack to properly call Event.record_event function because PyQt felt like being difficult"
+        self.currentEvent.record_event(self.output_File)
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
     #--------------------------------------------------------------
     def record_heat_GUI(self):
         """Hack to properly call the Event.record_heat function"""
@@ -1118,18 +1162,33 @@ class Ui_MainWindow(QMainWindow):
         return
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    #------------------------------------------
+    #-------------------------------------------------------------
     def disqualification_event(self):
+        """Must be used before recording heat. Records a disqualification on the data sheet for the lane in question"""
 
-        if self.times_running is True:
+        if self.times_running is False:
             return
 
         sender = int(self.sender().objectName().split("_")[1])
         self.ledits[sender - 1].setText("Disqualified")
         self.times[sender - 1] = "DQ_" + self.times[sender - 1] + "_DQ"
         return
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+    #---------------------------------------------------------------------------------
+    def enter_meet_info(self):
+      text, ok = QInputDialog.getText(self, 'Meet Naming Utility', 'Enter Meet Name:')
+      if ok:
+          #print(text)
+          self.output_File = text + ".txt"
+          self.w.setWindowTitle(text)
+          #"Main Window" is actually "self.w"
+          #qw.QApplication.processEvents()
+         #self.le1.setText(str(text))
+      return
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
     #------------------------------
     def messageBox(self, message):
         """Handy utility for displaying messages"""
