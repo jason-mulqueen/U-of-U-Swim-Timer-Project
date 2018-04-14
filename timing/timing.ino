@@ -22,6 +22,9 @@ unsigned long resetPress = 0;
 //--------------
 //SET LANE HERE
 //--------------
+//nanoID should never change
+//laneID allows for configuration routine
+//identifier is legacy
 
 unsigned int identifier = 1;
 unsigned int nanoID = identifier;
@@ -244,4 +247,3 @@ void configure_lanes(){
       return false;
   
 }
-

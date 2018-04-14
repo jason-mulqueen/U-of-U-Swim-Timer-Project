@@ -5,7 +5,7 @@ from Event_Heat_Definitions import Event
 
 from PyQt5.QtCore import (QFile, QFileInfo, QPoint, QSettings, QSignalMapper,
         QSize, QTextStream, Qt, QRect,QRegExp, QSortFilterProxyModel)
-from PyQt5.QtGui import QIcon, QKeySequence
+from PyQt5.QtGui import QIcon, QKeySequence, QActionEvent
 from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QMainWindow, QInputDialog, QLineEdit,
         QGridLayout, QMdiArea, QMessageBox, QTextEdit, QWidget, QLabel, QComboBox,QPushButton)
 
@@ -20,8 +20,6 @@ from PyQt5.QtWidgets import (QLCDNumber, QSlider, QVBoxLayout, QTextEdit)
 from Event_Heat_Definitions import Ui_event_wizard
 
 class Ui_MainWindow(QMainWindow):
-    #####################
-    #Create some universal stuff for compatibility
 
     def launch_Main(self):
         userLaneCount = int(self.comboBox.currentText())
@@ -36,8 +34,6 @@ class Ui_MainWindow(QMainWindow):
         self.setWindowTitle("Enter the Number of Lanes") 
         centralWidget = QWidget(self)          
         self.setCentralWidget(centralWidget)
-
-        
 
         self.arduino = ard
  
@@ -62,24 +58,11 @@ class Ui_MainWindow(QMainWindow):
         self.lane_enter_pushbutton.clicked.connect(self.print_lanes)
         self.show()
 
-
-
-        #self.setupUi(QMainWindow())
-        #Bind Events
-        
-
-
-
-
-    #def print_screen_resolution(self):
-    #    screen = app.primaryScreen()
-    #    size = screen.size()
-    #    print('Your Screen Resolution is: %d x %d' % (size.width(), size.height()))
-
     def print_lanes(self):
         lane_value = self.comboBox.currentText()
         print("Entered Number of Lanes is:",lane_value)
         self.close()
+
 
     def get_event_info(self):
         with open("event_info.txt","r") as event_info_output:
@@ -90,34 +73,51 @@ class Ui_MainWindow(QMainWindow):
             distance = info[3].strip()
             stroke = info[4].strip()
             number_of_heats = info[5].strip()
-
         self.entered_event_number_main_text.setText(event_number)
         self.entered_age_main_text.setText(age)
         self.entered_gender_main_text.setText(gender)
         self.entered_distance_main_text.setText(distance)
         self.entered_stroke_main_text.setText(stroke)
         self.entered_number_of_heats_main_text.setText(number_of_heats)
-        del self.currentEvent
-        #print(self.currentEvent.age)
-        self.currentEvent = Event(event_number, age, gender, distance, stroke, int(number_of_heats), int(self.lane_count))
-        print(self.currentEvent.number)
-        print(self.currentEvent.age)
-        print(self.currentEvent.gender)
-        print(self.currentEvent.distance)
-        print(self.currentEvent.stroke)
-        print(self.currentEvent.lanes)
-        print("Counter =", self.currentEvent.counter)
 
+        del self.currentEvent
+
+    
+        self.currentEvent = Event(event_number, age, gender, distance, stroke, int(number_of_heats), int(self.lane_count))
+
+        return 
 
     def openWindow(self):
         self.window = QtWidgets.QMainWindow()
         self.ui = Ui_event_wizard()
         self.ui.setupUi_2(self.window)
-        self.ui.enter_event_information_button.clicked.connect(self.get_event_info)
+        self.ui.enter_event_information_button.clicked.connect(self.event_wizard_close_actions)
+        #self.ui.enter_event_information_button.clicked.connect(self.window.close)
+        #self.ui.enter_event_information_button.clicked.connect(self.check_data)
+        #self.ui.enter_event_information_button.clicked.connect(self.get_event_info)
         self.window.show()
 
+    def event_wizard_close_actions(self):
+        self.ui.print_event_info()
+        #self.window.close
+        dataState = self.check_data()
+        #print(dataState)
+        if dataState:
+            self.get_event_info()
+        else:
+            #self.messageBox("Enter Event Info")
+            self.openWindow()
+        return
+
+    def check_data(self):
+        #print(self.ui.correct_entry)
+        if self.ui.correct_entry is False:
+            return False
+        else:
+            return True
 
     def setupUi(self, MainWindow, lane_count):
+       
         self.times_running = False
         self.currentEvent = Event("Void", "Void", "Void", "Void", "Void", 0, 0)
         self.lane_count = lane_count
@@ -935,6 +935,10 @@ class Ui_MainWindow(QMainWindow):
 
         self.end_meet_button.clicked.connect(MainWindow.close)
 
+
+        mainMenu = self.menuBar() 
+        fileMenu = mainMenu.addMenu('File')
+
     def retranslateUi(self, MainWindow, lane_count):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
@@ -958,7 +962,6 @@ class Ui_MainWindow(QMainWindow):
 #---------------------------------------------------------------------------
     def sendSignal(self):
         """ Sends start signal to connected Arduino. Then enters a wait state until timing data has been received. """
-
         print("SENDING START SIGNAL")
 
         self.t1 = time.perf_counter() #This starts a timer for GUI purposes. Independent of actual time data
@@ -971,7 +974,7 @@ class Ui_MainWindow(QMainWindow):
         #This block is kind've ugly. It traps in the program in a loop checking for and updating time data until the heat finishes
         heatFinish = False
         while heatFinish is False:
-            if self.heat_terminated is True:
+            if self.heat_terminated is True: #This would be set elsewhere, if record_heat is triggered
                 return
 
             heatFinish = self.updateTimes() #Watches for and updates times. Returns true if heat is finished
@@ -1094,6 +1097,39 @@ class Ui_MainWindow(QMainWindow):
         return
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    #------------------------------
+    def configure_lanes(self):
+        self.arduino.write(str.encode("1"))
+        self.arduino.write(str.encode(str(self.lane_count)))
+
+        for ledit in self.ledits:
+            ledit.setText("Configuring")
+
+        for i in range(self.lane_count):
+            if (self.arduino.inWaiting() > 0):
+                data = bytes.decode(self.arduino.readline())
+                m = data.split()
+                if "missive" in m:
+                    self.ledits[i].setText("Success!")
+
+        #When Last Lane is in & processed, Arduino must broadcast exitConfigure signal
+        self.messageBox("Configuration is Complete!")
+
+        return
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    #------------------------------------------
+    def disqualification_event(self):
+
+        if self.times_running is True:
+            return
+
+        sender = int(self.sender().objectName().split("_")[1])
+        self.ledits[sender - 1].setText("Disqualified")
+        self.times[sender - 1] = "DQ_" + self.times[sender - 1] + "_DQ"
+        return
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
     #------------------------------
     def messageBox(self, message):
         """Handy utility for displaying messages"""

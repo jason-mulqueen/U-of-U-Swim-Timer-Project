@@ -17,7 +17,7 @@ AF.nav_to_directory(os.path.join("C:\\Users", os.getlogin(), "Documents", "Swim 
 
 #Ready serial device
 arduino = AF.open_python_port()
-AF.wait_for_arduino_ready(arduino)
+#AF.wait_for_arduino_ready(arduino)
 
 
 #Run GUI

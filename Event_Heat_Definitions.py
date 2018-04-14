@@ -131,6 +131,30 @@ from PyQt5.QtWidgets import (QFileDialog, QInputDialog,
 
 class Ui_event_wizard(object):
     def print_event_info(self):
+        if not self.number_of_heats_combo.currentText():
+            self.messageBox("Enter Event Info")
+            self.correct_entry = False
+            return
+        if not self.stroke_combo.currentText():
+            self.messageBox("Enter Event Info")
+            self.correct_entry = False
+            return
+        if not self.distance_combo.currentText():
+            self.messageBox("Enter Event Info")
+            self.correct_entry = False
+            return
+        if not self.gender_combo.currentText():
+            self.messageBox("Enter Event Info")
+            self.correct_entry = False
+            return
+        if not self.age_combo.currentText():
+            self.messageBox("Enter Event Info")
+            self.correct_entry = False
+            return
+        if not self.event_number_text_enter.toPlainText():
+            self.messageBox("Enter Event Info")
+            self.correct_entry = False
+            return
         event_number_value = self.event_number_text_enter.toPlainText()
         age_value = self.age_combo.currentText()
         gender_value = self.gender_combo.currentText()
@@ -144,8 +168,9 @@ class Ui_event_wizard(object):
             event_info.write(distance_value + "\n")
             event_info.write(stroke_value + "\n")
             event_info.write(number_of_heats_value + "\n")
+        self.correct_entry = True
+        return
         
-
 
     def setupUi_2(self, event_wizard):
         event_wizard.setObjectName("event_wizard")
@@ -939,10 +964,15 @@ class Ui_event_wizard(object):
         self.actionConfigure_Timers.setText(_translate("event_wizard", "Configure Timers"))
 
 
-        self.enter_event_information_button.clicked.connect(self.print_event_info)
+        #self.enter_event_information_button.clicked.connect(self.print_event_info)
         self.enter_event_information_button.clicked.connect(event_wizard.close)
 
-
+    def messageBox(self, message):
+        """Convenient for displaying messages such as errors or relevant info to user"""
+        
+        msg = qw.QMessageBox()
+        msg.setText(message)
+        msg.exec_()
 #if __name__ == "__main__":
 #    import sys
 #    app = QtWidgets.QApplication(sys.argv)
