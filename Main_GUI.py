@@ -1143,7 +1143,7 @@ class Ui_MainWindow(QMainWindow):
 
     #------------------------------
     def configure_lanes(self):
-        self.arduino.write(str.encode("1"))
+        self.arduino.write(str.encode("33"))
         self.arduino.write(str.encode(str(self.lane_count)))
 
         for ledit in self.ledits:
@@ -1159,7 +1159,6 @@ class Ui_MainWindow(QMainWindow):
         #When Last Lane is in & processed, Arduino must broadcast exitConfigure signal
         self.messageBox("Configuration is Complete!")
 
-        return
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     #-------------------------------------------------------------

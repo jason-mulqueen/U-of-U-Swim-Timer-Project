@@ -162,19 +162,10 @@ bool send_w_ack(unsigned int &a, unsigned int &b, unsigned int &c, bool configur
       Serial.println("Top of Listening Loop");
       if (radio.available()) {
 
-        if (configuring == true) {
-          int conf[3];
-        } else {
-          int conf[2];
-        }
-
-        Serial.println("RADIO WAS AVAIALABLE");
-        radio.read(&conf, sizeof(conf));
-        Serial.println(conf[0]);
-        Serial.println(conf[1]);
-
         //Code for Configuration Routine--------------------------
         if (configuring == true) {
+          int conf[3];
+          radio.read(&conf, sizeof(conf));
           if ((conf[0]) == nanoID) {
             //Serial.println("correct identifier");
             if ((conf[1]) == confirmationCode) {
@@ -190,6 +181,8 @@ bool send_w_ack(unsigned int &a, unsigned int &b, unsigned int &c, bool configur
 
         //Code for normal message such as times & resets-----------------
         else {
+          int conf[2];
+          radio.read(&conf, sizeof(conf));
           if ((conf[0]) == laneID) {
             Serial.println("correct identifier");
             if ((conf[1]) == confirmationCode) {
@@ -247,14 +240,14 @@ void configure_lanes() {
   digitalWrite(goLED, ledState);
   digitalWrite(stopLED, ledState);
   unsigned long currentMillis = millis();
-  unsigned long previousMIllis = currentMillis();
+  unsigned long previousMillis = currentMillis;
   resetButtonState = digitalRead(resetButton);
 
   while (resetButtonState == HIGH) {
 
     currentMillis = millis();
     if (currentMillis - previousMillis > 500) {
-      previousMillis = currentMillis();
+      previousMillis = currentMillis;
 
       if (ledState == HIGH) {
         ledState = LOW;
@@ -270,7 +263,7 @@ void configure_lanes() {
     resetButtonState = digitalRead(resetButton);
     if (resetButtonState == LOW) {
       unsigned int voidState = 999;
-      send_w_ack(nanoID, voidState, voidState, true)
+      send_w_ack(nanoID, voidState, voidState, true);
       //*****
 
       //Once "send_w_ack" exits, the timer knows who it is
@@ -278,8 +271,6 @@ void configure_lanes() {
       //receiver gets confirmation that the timer knows it's new lane assignment
       while (true) {
         radio.startListening();
-        
-
         if (radio.available())
         {
           //char t[32] = {0};
@@ -300,13 +291,14 @@ void configure_lanes() {
               radio.write(&confirmation, sizeof(confirmation));
               //Serial.println("Sent Confirmation");
               radio.startListening();
-            }
-          }
+            }//end laneID if
+          }//end nanoID if
 
 //OPTION 2
           if (receivedMessage[0] == exitConfigureCode) {
             break; //break out of while(true) and exit function
           }
+        }//end if radio.available()
         }//end while(true)
 
         radio.flush_tx();
@@ -321,5 +313,7 @@ void configure_lanes() {
         digitalWrite(goLED, LOW);
         digitalWrite(stopLED, HIGH);
       }//end if (resetButtonState == LOW)
-    }//end void configure_lanes
+    }//end while resetButtonState == HIGH
+    //resetButtonState should be high and break out of the while HIGH loop, allowing to exit function
+}//end void configure_lanes
 
