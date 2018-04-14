@@ -833,9 +833,9 @@ class Ui_MainWindow(QMainWindow):
         self.record_event_button.setStyleSheet("color: rgb(255, 255, 255);font: 12pt \"MS Shell Dlg 2\";")
         self.record_event_button.setObjectName("record_event")
         self.verticalLayout_4.addWidget(self.record_event_button)
-        self.record_event_button.clicked.connect(self.print_confirmation)
+        #self.record_event_button.clicked.connect(self.print_confirmation)
         self.record_event_button.clicked.connect(self.record_event_GUI)
-        self.record_event_button.clicked.connect(self.print_confirmation)
+        #self.record_event_button.clicked.connect(self.print_confirmation)
 
         self.end_meet_button = QtWidgets.QPushButton(self.centralwidget)
         self.end_meet_button.setStyleSheet("color: rgb(255, 255, 255);font: 12pt \"MS Shell Dlg 2\";")
@@ -1077,7 +1077,6 @@ class Ui_MainWindow(QMainWindow):
         sys.exit()
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def record_event_GUI(self, filename):
-        print("Entered GUI function, calling Class function")
         self.currentEvent.record_event("Meet_Data.txt")
     #--------------------------------------------------------------
     def record_heat_GUI(self):
