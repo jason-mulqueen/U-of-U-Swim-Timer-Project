@@ -1184,13 +1184,13 @@ class Ui_MainWindow(QMainWindow):
 
     #------------------------------
     def configure_lanes(self):
-        #self.arduino.reset_input_buffer()
-        #self.arduino.reset_output_buffer()
+        self.arduino.reset_input_buffer()
+        self.arduino.reset_output_buffer()
         oldTime = time.perf_counter()
         config_text = 1
         print("Configure Routine")
-        #self.arduino.write(str.encode("33"))
-        #self.arduino.write(str.encode(str(self.lane_count)))
+        self.arduino.write(str.encode("33"))
+        self.arduino.write(str.encode(str(self.lane_count)))
         print(self.lane_count)
 
         config_success = []
@@ -1240,15 +1240,15 @@ class Ui_MainWindow(QMainWindow):
                     oldTime = time.perf_counter()
                     qw.QApplication.processEvents()
 
-                #if (self.arduino.inWaiting() > 0):
-                #    data = bytes.decode(self.arduino.readline())
-                #    m = data.split()
-                #    if "missive" in m:
-                #        self.ledits[i].setText("Success!")
-                #        config_success[i] = True
-                #        break
+                if (self.arduino.inWaiting() > 0):
+                    data = bytes.decode(self.arduino.readline())
+                    m = data.split()
+                    if "missive" in m:
+                        self.ledits[i].setText("Success!")
+                        config_success[i] = True
+                        break
 
-        #When Last Lane is in & processed, Arduino must broadcast exitConfigure signal
+        #When Last Lane is in & processed, Arduino must broadcast exitConfigure signal, it does this automatically
         for ledit in self.ledits:
             ledit.setAlignment(QtCore.Qt.AlignRight)
 
