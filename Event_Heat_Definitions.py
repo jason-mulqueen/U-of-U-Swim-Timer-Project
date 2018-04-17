@@ -959,6 +959,18 @@ class Ui_event_wizard(object):
 
         self.enter_event_information_button.clicked.connect(event_wizard.close)
 
+    #def close_port_query(self):
+        #app = QApplication(sys.argv)
+        #item, ok = QInputDialog.getItem(self, "Quit Confirmation", 
+        #                "Really Exit?", ("Back To Safety!", "Exit!"), 0, False)
+        #app.exec()
+        #if ok:
+        #    if "Exit" in item:
+        #        return True
+         #   else:
+         #       return False
+   
+
     def messageBox(self, message):
         """Convenient for displaying messages such as errors or relevant info to user"""
         

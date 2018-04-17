@@ -19,14 +19,12 @@ AF.nav_to_directory(os.path.join("C:\\Users", os.getlogin(), "Documents", "Swim 
 arduino = AF.open_python_port()
 #Ensures Arduino is connected & ready before launching GUI
 #Comment this line to run GUI w/o Arduino Connected. This may cause errors when certain buttons are pressed
-AF.wait_for_arduino_ready(arduino)
+#AF.wait_for_arduino_ready(arduino)
 
 
 #Run GUI
-#app = QApplication(sys.argv)
-#sudoku = Timing_GUI(arduino)
-#sys.exit(app.exec_())
-
 app = QApplication(sys.argv)
 ui = Ui_MainWindow(arduino)
+#app.quitOnLastWindowClosed = False
+#app.setQuitOnLastWindowClosed(False)
 sys.exit(app.exec_())

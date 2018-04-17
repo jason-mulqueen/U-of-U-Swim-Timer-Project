@@ -16,7 +16,7 @@ import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import (QLCDNumber, QSlider, QVBoxLayout, QTextEdit)
 
-#import Event_Wizard
+#Import Event_Wizard
 from Event_Heat_Definitions import Ui_event_wizard
 
 class Ui_MainWindow(QMainWindow):
@@ -28,6 +28,7 @@ class Ui_MainWindow(QMainWindow):
         self.w.show()
 
     def __init__(self, ard):
+
         QMainWindow.__init__(self)
         self.setMinimumSize(QSize(800, 250))  
         self.move(200,200)
@@ -37,6 +38,9 @@ class Ui_MainWindow(QMainWindow):
 
         self.output_File = "Meet_Data.txt"
         self.arduino = ard
+        self.configuringActive = False
+
+        
  
         # Create combobox and add items.
         self.label_lane_enter = QLabel('Enter Number of Lanes',centralWidget)
@@ -82,13 +86,19 @@ class Ui_MainWindow(QMainWindow):
         self.entered_number_of_heats_main_text.setText(number_of_heats)
 
         del self.currentEvent
-
-    
         self.currentEvent = Event(event_number, age, gender, distance, stroke, int(number_of_heats), int(self.lane_count))
-
+        self.label_16.setText("Heat " + str(self.currentEvent.counter) + " of " + str(len(self.currentEvent.heats)))
         return 
 
     def openWindow(self):
+        if self.configuringActive is True:
+            self.messageBox("Configuration is running.\nWait for configuration to finish,\nthen create new event")
+            return
+
+        if self.times_running is True:
+            self.messageBox("Cannot create a new event during a race")
+            return
+
         self.window = QtWidgets.QMainWindow()
         self.ui = Ui_event_wizard()
         self.ui.setupUi_2(self.window)
@@ -102,11 +112,10 @@ class Ui_MainWindow(QMainWindow):
         self.ui.print_event_info()
         #self.window.close
         dataState = self.check_data()
-        #print(dataState)
+        
         if dataState:
             self.get_event_info()
         else:
-            #self.messageBox("Enter Event Info")
             self.openWindow()
         return
 
@@ -124,6 +133,7 @@ class Ui_MainWindow(QMainWindow):
         self.lane_count = lane_count
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(550, 450)
+        centralWidget = QWidget(self)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -747,15 +757,16 @@ class Ui_MainWindow(QMainWindow):
         self.label_x.setStyleSheet("font: 12pt \"MS Shell Dlg 2\";color: rgb(255, 255, 255);")
         self.label_x.setObjectName("label")
         
-        #######################
+        #####################################################################
         #Dynamic Lane Labeling
-        #######################
+        #####################################################################
         self.labels = [self.label_3, self.label_2, self.label_4,
                        self.label_6, self.label_8, self.label_5,
                        self.label_7, self.label_x]
         #for i in range(lane_count):
            #self.verticalLayout_3.addWidget(self.labels[i])
-        #######################
+        ######################################################################
+
         self.gridLayout.addLayout(self.verticalLayout_3, 4, 0, 1, 1)
         self.go_button = QtWidgets.QPushButton(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
@@ -789,6 +800,7 @@ class Ui_MainWindow(QMainWindow):
         for i in range(lane_count):
             self.times.append(' ')
         #####################################################################################
+
         self.gridLayout.addWidget(self.go_button, 5, 1, 1, 3, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter)
         self.verticalLayout_2 = QtWidgets.QVBoxLayout()
         self.verticalLayout_2.setObjectName("verticalLayout_2")
@@ -796,18 +808,10 @@ class Ui_MainWindow(QMainWindow):
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
 
-        #self.verticalLayout = QtWidgets.QVBoxLayout()
-       #self.verticalLayout.setObjectName("verticalLayout")
-
-        #self.gridLayout.addLayout(self.verticalLayout, 6, 2, 1, 1)
-        #spacerItem2 = QtWidgets.QSpacerItem(20, 100, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
-        #self.gridLayout.addItem(spacerItem2, 6, 3, 1, 1)
-        #spacerItem3 = QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
-        #self.gridLayout.addItem(spacerItem3, 4, 2, 1, 1)
         self.label_16 = QtWidgets.QLabel(self.centralwidget)
         self.label_16.setStyleSheet("color: rgb(255, 255, 255);")
         self.label_16.setObjectName("label_16")
-        self.label_16.setStyleSheet("font: 10pt \"MS Shell Dlg 2\";color: rgb(255, 255, 255);")
+        self.label_16.setStyleSheet("font: 14pt \"MS Shell Dlg 2\";color: rgb(255, 255, 255);")
         self.verticalLayout_2.addWidget(self.label_16, 0, QtCore.Qt.AlignLeft)
         
         #self.hLayout = QtWidgets.QHBoxLayout()
@@ -858,7 +862,7 @@ class Ui_MainWindow(QMainWindow):
         self.lane_enter_pushbutton.clicked.connect(self.print_lanes)
         self.go_button.clicked.connect(self.sendSignal)
         self.record_heat_button.clicked.connect(self.record_heat_GUI)
-        self.record_heat_button.clicked.connect(self.reset_heat_data)
+        #self.record_heat_button.clicked.connect(self.reset_heat_data)
        
         
 
@@ -867,14 +871,13 @@ class Ui_MainWindow(QMainWindow):
         self.record_event_button.setStyleSheet("color: rgb(255, 255, 255);font: 12pt \"MS Shell Dlg 2\";")
         self.record_event_button.setObjectName("record_event")
         self.verticalLayout_4.addWidget(self.record_event_button)
-        #self.record_event_button.clicked.connect(self.print_confirmation)
+    
         self.record_event_button.clicked.connect(self.record_event_GUI)
-        #self.record_event_button.clicked.connect(self.print_confirmation)
 
         for dq_button in self.dq_boxes:
             dq_button.clicked.connect(self.disqualification_event)
 
-        self.end_meet_button = QtWidgets.QPushButton(self.centralwidget)
+        self.end_meet_button = QtWidgets.QPushButton()
         self.end_meet_button.setStyleSheet("color: rgb(255, 255, 255);font: 12pt \"MS Shell Dlg 2\";")
         self.end_meet_button.setObjectName("end_meet_button")
         self.end_meet_button.clicked.connect(self.closePort)
@@ -1000,7 +1003,7 @@ class Ui_MainWindow(QMainWindow):
         self.retranslateUi(MainWindow, lane_count)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-        self.end_meet_button.clicked.connect(MainWindow.close)
+        #self.end_meet_button.clicked.connect(MainWindow.close)
 
 
         
@@ -1028,7 +1031,7 @@ class Ui_MainWindow(QMainWindow):
         for dq in self.dq_boxes:
             dq.setText(_translate("MainWindow", "DQ"))
 
-        self.label_16.setText(_translate("MainWindow", "   Heat Number:     "))
+        self.label_16.setText(_translate("MainWindow", "Heat Number:     "))
 
 
         self.menuOptions.setTitle(_translate("Main_Window", "Options"))
@@ -1041,7 +1044,12 @@ class Ui_MainWindow(QMainWindow):
 #---------------------------------------------------------------------------
     def sendSignal(self):
         """ Sends start signal to connected Arduino. Then enters a wait state until timing data has been received. """
-        print("SENDING START SIGNAL")
+
+        if self.configuringActive is True:
+            self.messageBox("Configure Routine is Running\nPlease Finish Configuring First")
+            return
+
+        #print("SENDING START SIGNAL")
 
         self.t1 = time.perf_counter() #This starts a timer for GUI purposes. Independent of actual time data
 
@@ -1050,7 +1058,8 @@ class Ui_MainWindow(QMainWindow):
 
         self.times_running   = True
         self.heat_terminated = False
-        #This block is kind've ugly. It traps in the program in a loop checking for and updating time data until the heat finishes
+
+        #This block traps in the program in a loop checking for and updating time data until the heat finishes
         heatFinish = False
         while heatFinish is False:
             if self.heat_terminated is True: #This would be set elsewhere, if record_heat is triggered
@@ -1145,23 +1154,40 @@ class Ui_MainWindow(QMainWindow):
         #Provide confirmation for user by resetting labels to show message
         for ledit in self.ledits:
             ledit.setText("Waiting...")
+        
+        if self.currentEvent.counter > len(self.currentEvent.heats):
+            pass
+        else:
+            self.label_16.setText("Heat " + str(self.currentEvent.counter) + " of " + str(len(self.currentEvent.heats)))
 
         self.times_running = False
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+        
     #--------------------------------------------------------
     def closePort(self):
         """ Closes the Port the arduino object is on. This is absolutely necessary to rerun code on the Arduino. Shouldn't appear
         in final production code most likely however."""
 
-        self.arduino.close()
-        self.end_meet_button.setText("Port Closed")
-        sys.exit()
+        quit_msg = "Are you sure you want to exit the program?"
+        reply = QMessageBox.question(self, 'Message', 
+                     quit_msg, QMessageBox.Yes, QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            self.arduino.close()
+            sys.exit()
+        else:
+            pass
+            
+        
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     #---------------------------------------------------------
     def record_event_GUI(self):
         "Hack to properly call Event.record_event function because PyQt felt like being difficult"
+        if self.configuringActive is True:
+            self.messageBox("Configure Routine is Running\nFinish configuring & run event first")
+            return
         self.currentEvent.record_event(self.output_File)
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1169,6 +1195,10 @@ class Ui_MainWindow(QMainWindow):
     #--------------------------------------------------------------
     def record_heat_GUI(self):
         """Hack to properly call the Event.record_heat function"""
+
+        if self.configuringActive is True:
+            self.messageBox("Configure Routine is Running\nFinish configuring, then run heat")
+            return
 
         #Don't do anything if no times are running
         if self.times_running is False:
@@ -1179,27 +1209,37 @@ class Ui_MainWindow(QMainWindow):
 
         self.arduino.write(str.encode("9"))
         self.currentEvent.record_heat(self.times)
+        self.reset_heat_data()
         return
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     #------------------------------
     def configure_lanes(self):
+        self.configuringActive = True #Set flag to prevent havoc elsewhere
+
+        #Clear arduino buffers for safety
         self.arduino.reset_input_buffer()
         self.arduino.reset_output_buffer()
+
+        #Start a clock and set the text state
         oldTime = time.perf_counter()
         config_text = 1
-        print("Configure Routine")
+
+        print("Configure Routine") #Troubleshooting message
+
+        #Send the configure signal & lane count to the Arduino
         self.arduino.write(str.encode("33"))
         self.arduino.write(str.encode(str(self.lane_count)))
-        print(self.lane_count)
 
-        config_success = []
+        #print(self.lane_count)
+
+        config_success = [] #List of flags so only lanes that are still pending are looping
         for idx, ledit in enumerate(self.ledits):
-            ledit.setAlignment(QtCore.Qt.AlignLeft)
+            ledit.setAlignment(QtCore.Qt.AlignLeft) #For aesthetics
             ledit.setText("Configuring")
             config_success.append(False)
     
-        qw.QApplication.processEvents()
+        qw.QApplication.processEvents() #To be safe
 
         newTime = time.perf_counter() - oldTime
         for i in range(self.lane_count):
@@ -1240,59 +1280,66 @@ class Ui_MainWindow(QMainWindow):
                     oldTime = time.perf_counter()
                     qw.QApplication.processEvents()
 
+                #Check for successful lane cofiguration message from Arduino
                 if (self.arduino.inWaiting() > 0):
                     data = bytes.decode(self.arduino.readline())
                     m = data.split()
                     if "missive" in m:
                         self.ledits[i].setText("Success!")
                         config_success[i] = True
-                        break
+                        break #Hops out of while true to continue for loop
 
         #When Last Lane is in & processed, Arduino must broadcast exitConfigure signal, it does this automatically
+
+        #Reset the line edit alignment for aesthetics
         for ledit in self.ledits:
             ledit.setAlignment(QtCore.Qt.AlignRight)
 
+        self.configuringActive = False #Reset this flag so the program can run properly
+
         self.messageBox("Configuration is Complete!")
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    #-------------------------------------------------------------
+    #--------------------------------------------------------------------------------------------------------------------
     def disqualification_event(self):
         """Must be used before recording heat. Records a disqualification on the data sheet for the lane in question"""
 
         if self.times_running is False:
+            self.messageBox("No heat is active.\nTry again while a race is active")
             return
+            
 
         sender = int(self.sender().objectName().split("_")[1])
-        #print("DQ'ed: " + str(sender))
         self.ledits[sender - 1].setText("Disqualified")
         self.times[sender - 1] = "DQ_" + self.times[sender - 1] + "_DQ"
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  
-    #---------------------------------------------------------------------------------
+    #----------------------------------------------------------------------------------
     def enter_meet_info(self):
       text, ok = QInputDialog.getText(self, 'Meet Naming Utility', 'Enter Meet Name:')
       if ok:
-          #print(text)
           self.output_File = text + ".txt"
+          #"Main Window" is "self.w"
           self.w.setWindowTitle(text)
-          #"Main Window" is actually "self.w"
-          #qw.QApplication.processEvents()
-         #self.le1.setText(str(text))
+     
       return
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-    #------------------------------
+    #-----------------------------------------------
     def messageBox(self, message):
         """Handy utility for displaying messages"""
-        app = qw.QApplication(sys.argv)
         msg = qw.QMessageBox()
         msg.setText(message)
         msg.exec_()
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    #-----------------------------------------------
+    #def messageBoxYesNo(self, message):
+     #   msg = qw.QMessageBox()
+     #   reply = msg.question(self, 'Message', "Really Exit?\nYou won't be able to use same save file", msg.Yes, msg.No)
+     #   return reply
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
