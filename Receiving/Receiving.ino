@@ -10,7 +10,7 @@ int startSignal = 666;
 unsigned int confirmationCode = 24;
 int configureCode    = 33;
 unsigned long t = 0;
-int LED = 30;
+int LED = 9;
 int exitConfigureCode = 12345;
 
 RF24 radio(7, 8);
@@ -58,11 +58,10 @@ void loop()
       }
 
       if (state == 1) { //If correct start signal is received, begin doing stuff
+        for (int k = 0; k < 100; k++){
         radio.write(&startSignal, sizeof(startSignal));
-        radio.write(&startSignal, sizeof(startSignal));
-        radio.write(&startSignal, sizeof(startSignal));
-        radio.write(&startSignal, sizeof(startSignal));
-        radio.write(&startSignal, sizeof(startSignal));
+        }
+
         digitalWrite(LED, LOW);
 
         // t1 = millis();
@@ -107,15 +106,9 @@ void loop()
       //      digitalWrite(LED,HIGH);
       //      delay(100);
       //      digitalWrite(LED,LOW);
-      //Serial.println("Sent Confirmation");
       radio.startListening();
 
-
-
-
-      //t2 = millis() - t1;
-      String messageToSend = "";
-      messageToSend = (String)receivedMessage[0] + " " + (String)receivedMessage[1] + " " + (String)receivedMessage[2];
+      String messageToSend = (String)receivedMessage[0] + " " + (String)receivedMessage[1] + " " + (String)receivedMessage[2];
       //Serial.print("Shane Time = ");
       Serial.println(messageToSend);
       //Serial.print("My Time = ");
@@ -155,40 +148,37 @@ void configure_lanes() {
   unsigned long start_time = millis();
   digitalWrite(LED, LED_state);
 
-  int lane_count = 0;
+  unsigned int lane_count = 0;
 
-  while (!Serial.available()) {
+  while (true) {
     if (Serial.available()) {
-      lane_count = (int)(Serial.read() - '0');
+      lane_count = Serial.read() - '0';
       break;
     }
-  }
-
-  //int lane_assigned[lane_count] = {0};
+  }//end while(true)
 
   //Broadcast "CONFIGURE" signal
   radio.stopListening();
   radio.flush_tx();
-  radio.write(&configureCode, sizeof(configureCode));
-  radio.write(&configureCode, sizeof(configureCode));
-  radio.write(&configureCode, sizeof(configureCode));
-  radio.write(&configureCode, sizeof(configureCode));
-  radio.write(&configureCode, sizeof(configureCode));
+  for (int k = 0; k < 100; k++){
+     radio.write(&configureCode, sizeof(configureCode));
+     } 
 
   radio.startListening();
 
   //Loop while listening for lanes
   for (unsigned int lanes_received = 1; lanes_received <= lane_count; lanes_received++) {
-
-  //LED stuff- - - - - - - - - - - - - - -
-  unsigned long new_time = millis();
-    if (new_time - start_time >= 500) {
-      start_time = new_time;
-      if (LED_state == LOW) {
-        LED_state = HIGH;
-      } else {
-        LED_state = LOW;
-      }
+    bool waiting = true;
+    while (waiting == true){
+    //LED stuff- - - - - - - - - - - - - - -
+    unsigned long new_time = millis();
+      if (new_time - start_time >= 500) {
+        start_time = new_time;
+        if (LED_state == LOW) {
+          LED_state = HIGH;
+        } else {
+          LED_state = LOW;
+        }
       digitalWrite(LED, LED_state);
     }//End LED stuff- - - - - - - - - - - -
 
@@ -206,20 +196,28 @@ void configure_lanes() {
       send_w_ack(nanoID, confirmationCode, lanes_received);
 
       Serial.println("missive");
+      waiting = false;
       radio.startListening();
     }//end radio.available() if statement
+    }//end while waiting == true
 
   }//end lane assignment for loop
 
   //Send massive broadcast to end this configuration madness once & for all!
   unsigned int apocalypse[3] = {exitConfigureCode, exitConfigureCode, exitConfigureCode};
   radio.stopListening();
+  radio.begin();
+  radio.setAutoAck(false);
+  radio.setDataRate(RF24_250KBPS);
+  radio.setRetries(8, 15);
+  radio.openReadingPipe(1, rxAddr);
+  radio.openWritingPipe(txAddr);
+  radio.stopListening();
   radio.flush_tx();
   
-  for (int z = 0; z < 15; z++) {
+  for (int z = 0; z < 100; z++) {
     radio.write(&apocalypse, sizeof(apocalypse));
   }
-
 
 
   radio.begin();
@@ -228,8 +226,9 @@ void configure_lanes() {
   radio.setRetries(8, 15);
   radio.openReadingPipe(1, rxAddr);
   radio.openWritingPipe(txAddr);
-  radio.startListening();
+  radio.stopListening();
   radio.flush_tx();
+  
 }//end configure_lanes
 
 //---------------------------------------------------------------------------------------------

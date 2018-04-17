@@ -53,8 +53,8 @@ class Event():
         if blank_time is True:
             self.messageBox("One or more lanes did not record a time")
 
-
-        self.heats[self.counter - 1].data[idx] = times[idx]
+        for idx in range(len(self.heats[self.counter - 1].data)):
+            self.heats[self.counter - 1].data[idx] = times[idx]
 
         self.counter = self.counter + 1
         if self.counter > len(self.heats):
@@ -956,15 +956,7 @@ class Ui_event_wizard(object):
         self.number_of_heats_combo.setItemText(7, _translate("event_wizard", "7"))
         self.number_of_heats_combo.setItemText(8, _translate("event_wizard", "8"))
         self.number_of_heats_combo.setItemText(9, _translate("event_wizard", "9"))
-        #self.menuOptions.setTitle(_translate("event_wizard", "Options"))
-        #self.actionsave_file.setText(_translate("event_wizard", "save file"))
-        #self.actionopen_new_file.setText(_translate("event_wizard", "open new file"))
-        #self.actionAdded_Options.setText(_translate("event_wizard", "Added Options"))
-        #self.actionOptions.setText(_translate("event_wizard", "Options"))
-        #self.actionConfigure_Timers.setText(_translate("event_wizard", "Configure Timers"))
 
-
-        #self.enter_event_information_button.clicked.connect(self.print_event_info)
         self.enter_event_information_button.clicked.connect(event_wizard.close)
 
     def messageBox(self, message):

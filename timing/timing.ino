@@ -16,6 +16,7 @@ bool buttonState = 0;
 int goLED = 2;
 int stopLED = 4;
 unsigned int confirmationCode = 24;
+int configureCode = 33;
 unsigned long resetPress = 0;
 int exitConfigureCode = 12345;
 bool resetUsed = false;
@@ -28,7 +29,7 @@ bool resetUsed = false;
 //laneID allows for configuration routine
 //identifier is legacy
 
-unsigned int identifier = 1;
+unsigned int identifier = 3;
 unsigned int nanoID = identifier;
 unsigned int laneID = nanoID;
 
@@ -40,6 +41,7 @@ void setup()
   pinMode(stopLED, OUTPUT);
   pinMode(resetButton, INPUT_PULLUP);
   pinMode(button, INPUT_PULLUP);
+  digitalWrite(stopLED, HIGH);
   radio.begin();
   radio.setAutoAck(false);
   radio.setDataRate(RF24_250KBPS);
@@ -48,6 +50,8 @@ void setup()
   radio.openReadingPipe(1, myAdd);
   while (!Serial);
   Serial.begin(9600);
+  digitalWrite(stopLED, LOW);
+
 }
 
 
@@ -71,6 +75,10 @@ void loop()
       radio.read(&text, sizeof(text));
       Serial.println(text);
 
+      if (text == configureCode){
+        configure_lanes();
+      }
+      
       //checking for special message
       if (text == 666) {
         Serial.println("Starting Timing");
@@ -117,7 +125,7 @@ void loop()
       resetPress = millis();
       unsigned int voidState = 999;
       unsigned int fillerSpot = 69;
-      unsigned int messageToSend[3] = {nanoID, fillerSpot, voidState};
+      unsigned int messageToSend[3] = {laneID, fillerSpot, voidState};
       heatLooping = send_w_ack(nanoID, fillerSpot, voidState, false);
     }//End reset button if
 
@@ -128,7 +136,7 @@ void loop()
       //send the time
       unsigned int seconds   = capture / 1000;
       unsigned int hundreths = (capture % 1000) / 10;
-      heatLooping = send_w_ack(nanoID, seconds, hundreths, false);
+      heatLooping = send_w_ack(laneID, seconds, hundreths, false);
 
     }//End loop for timer button press. Setting heatLooping = false breaks out of that loop
   }// end while (heatLooping == true)
@@ -177,7 +185,7 @@ bool send_w_ack(unsigned int &a, unsigned int &b, unsigned int &c, bool configur
               break; //Break out of && while loop, we're good
             }//End confirmation if
           }// End identifier if
-        }
+        }//end "Configuring" special algorithm
 
         //Code for normal message such as times & resets-----------------
         else {
@@ -273,7 +281,6 @@ void configure_lanes() {
         radio.startListening();
         if (radio.available())
         {
-          //char t[32] = {0};
           unsigned int receivedMessage[3];
           radio.read(&receivedMessage, sizeof(receivedMessage));
 //OPTION 1
@@ -299,6 +306,15 @@ void configure_lanes() {
             break; //break out of while(true) and exit function
           }
         }//end if radio.available()
+        radio.flush_tx();
+        radio.begin();
+        radio.setAutoAck(false);
+        radio.setDataRate(RF24_250KBPS);
+        radio.setRetries(8, 15);
+        radio.openWritingPipe(rxAddr);
+        radio.openReadingPipe(1, myAdd);
+        radio.flush_tx();
+        radio.stopListening();
         }//end while(true)
 
         radio.flush_tx();

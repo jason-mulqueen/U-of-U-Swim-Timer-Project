@@ -753,8 +753,8 @@ class Ui_MainWindow(QMainWindow):
         self.labels = [self.label_3, self.label_2, self.label_4,
                        self.label_6, self.label_8, self.label_5,
                        self.label_7, self.label_x]
-        for i in range(lane_count):
-            self.verticalLayout_3.addWidget(self.labels[i])
+        #for i in range(lane_count):
+           #self.verticalLayout_3.addWidget(self.labels[i])
         #######################
         self.gridLayout.addLayout(self.verticalLayout_3, 4, 0, 1, 1)
         self.go_button = QtWidgets.QPushButton(self.centralwidget)
@@ -795,14 +795,47 @@ class Ui_MainWindow(QMainWindow):
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
+
+        #self.verticalLayout = QtWidgets.QVBoxLayout()
+       #self.verticalLayout.setObjectName("verticalLayout")
+
+        #self.gridLayout.addLayout(self.verticalLayout, 6, 2, 1, 1)
+        #spacerItem2 = QtWidgets.QSpacerItem(20, 100, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        #self.gridLayout.addItem(spacerItem2, 6, 3, 1, 1)
+        #spacerItem3 = QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        #self.gridLayout.addItem(spacerItem3, 4, 2, 1, 1)
+        self.label_16 = QtWidgets.QLabel(self.centralwidget)
+        self.label_16.setStyleSheet("color: rgb(255, 255, 255);")
+        self.label_16.setObjectName("label_16")
+        self.label_16.setStyleSheet("font: 10pt \"MS Shell Dlg 2\";color: rgb(255, 255, 255);")
+        self.verticalLayout_2.addWidget(self.label_16, 0, QtCore.Qt.AlignLeft)
         
+        #self.hLayout = QtWidgets.QHBoxLayout()
+        #self.hLayout.setObjectName("HBoxLayout")
+
+        self.dq_boxes = []
+        for i in range(lane_count):
+            self.dq_boxes.append(QtWidgets.QPushButton(self.centralwidget))
+        
+
+        self.hbox = []
 
         for idx, ledit in enumerate(self.ledits):
             ledit.setSizePolicy(sizePolicy)
             ledit.setStyleSheet("font: 75 14pt \"MS Shell Dlg 2\";color: rgb(255, 255, 255);")
             ledit.setObjectName("lane_" + str(idx) + "_time")
             ledit.setAlignment(QtCore.Qt.AlignRight)
-            self.verticalLayout_2.addWidget(ledit, 0, QtCore.Qt.AlignLeft)
+
+            self.dq_boxes[idx].setMaximumSize(QtCore.QSize(100, 35))
+            self.dq_boxes[idx].setStyleSheet("color: rgb(255, 255, 255);font: 8pt \"MS Shell Dlg 2\";")
+            self.dq_boxes[idx].setObjectName("dq_" + str(idx + 1))
+
+            self.hbox.append(QtWidgets.QHBoxLayout())
+            
+            self.verticalLayout_2.addLayout(self.hbox[idx])
+            self.hbox[idx].addWidget(self.labels[idx])
+            self.hbox[idx].addWidget(ledit, 0, QtCore.Qt.AlignLeft)
+            self.hbox[idx].addWidget(self.dq_boxes[idx], 0, QtCore.Qt.AlignLeft)
 
         sizePolicy.setHeightForWidth(self.ledits[0].sizePolicy().hasHeightForWidth())
         self.gridLayout.addLayout(self.verticalLayout_2, 4, 1, 1, 1)
@@ -837,6 +870,9 @@ class Ui_MainWindow(QMainWindow):
         #self.record_event_button.clicked.connect(self.print_confirmation)
         self.record_event_button.clicked.connect(self.record_event_GUI)
         #self.record_event_button.clicked.connect(self.print_confirmation)
+
+        for dq_button in self.dq_boxes:
+            dq_button.clicked.connect(self.disqualification_event)
 
         self.end_meet_button = QtWidgets.QPushButton(self.centralwidget)
         self.end_meet_button.setStyleSheet("color: rgb(255, 255, 255);font: 12pt \"MS Shell Dlg 2\";")
@@ -989,6 +1025,11 @@ class Ui_MainWindow(QMainWindow):
         self.end_meet_button.setText(_translate("MainWindow", "End Meet"))
         self.label_9.setText(_translate("MainWindow", "     Current Event Information                                "))
 
+        for dq in self.dq_boxes:
+            dq.setText(_translate("MainWindow", "DQ"))
+
+        self.label_16.setText(_translate("MainWindow", "   Heat Number:     "))
+
 
         self.menuOptions.setTitle(_translate("Main_Window", "Options"))
         self.actionsave_file.setText(_translate("Main_Window", "save file"))
@@ -1065,8 +1106,8 @@ class Ui_MainWindow(QMainWindow):
             self.lane = data[0]
             seconds   = data[1]
             hund      = data[2]
-
-            if int(hund) is 999:
+            
+            if int(hund) > 100:
                 self.finalTime = "No Swimmer"
                 return True
 
@@ -1143,21 +1184,76 @@ class Ui_MainWindow(QMainWindow):
 
     #------------------------------
     def configure_lanes(self):
-        self.arduino.write(str.encode("33"))
-        self.arduino.write(str.encode(str(self.lane_count)))
+        #self.arduino.reset_input_buffer()
+        #self.arduino.reset_output_buffer()
+        oldTime = time.perf_counter()
+        config_text = 1
+        print("Configure Routine")
+        #self.arduino.write(str.encode("33"))
+        #self.arduino.write(str.encode(str(self.lane_count)))
+        print(self.lane_count)
 
-        for ledit in self.ledits:
+        config_success = []
+        for idx, ledit in enumerate(self.ledits):
+            ledit.setAlignment(QtCore.Qt.AlignLeft)
             ledit.setText("Configuring")
+            config_success.append(False)
+    
+        qw.QApplication.processEvents()
 
+        newTime = time.perf_counter() - oldTime
         for i in range(self.lane_count):
-            if (self.arduino.inWaiting() > 0):
-                data = bytes.decode(self.arduino.readline())
-                m = data.split()
-                if "missive" in m:
-                    self.ledits[i].setText("Success!")
+            while True:
+                newTime = time.perf_counter() - oldTime
+                if newTime > 0.08:
+                    
+                    if config_text is 1:
+                        for idx, ledit in enumerate(self.ledits):
+                            if config_success[idx] is False:
+                                ledit.setText("Configuring.")
+                        config_text = 2
+
+                    elif config_text is 2:
+                        for idx, ledit in enumerate(self.ledits):
+                            if config_success[idx] is False:
+                                ledit.setText("Configuring..")
+                        config_text = 3
+                        
+                    elif config_text is 3:
+                        for idx, ledit in enumerate(self.ledits):
+                            if config_success[idx] is False:
+                                ledit.setText("Configuring...")
+                        config_text = 4
+
+                    elif config_text is 4:
+                        for idx, ledit in enumerate(self.ledits):
+                            if config_success[idx] is False:
+                                ledit.setText("Configuring....")
+                        config_text = 5
+
+                    elif config_text is 5:
+                        for idx, ledit in enumerate(self.ledits):
+                            if config_success[idx] is False:
+                                ledit.setText("Configuring.....")
+                        config_text = 1
+                   
+                    oldTime = time.perf_counter()
+                    qw.QApplication.processEvents()
+
+                #if (self.arduino.inWaiting() > 0):
+                #    data = bytes.decode(self.arduino.readline())
+                #    m = data.split()
+                #    if "missive" in m:
+                #        self.ledits[i].setText("Success!")
+                #        config_success[i] = True
+                #        break
 
         #When Last Lane is in & processed, Arduino must broadcast exitConfigure signal
+        for ledit in self.ledits:
+            ledit.setAlignment(QtCore.Qt.AlignRight)
+
         self.messageBox("Configuration is Complete!")
+
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1169,9 +1265,9 @@ class Ui_MainWindow(QMainWindow):
             return
 
         sender = int(self.sender().objectName().split("_")[1])
+        #print("DQ'ed: " + str(sender))
         self.ledits[sender - 1].setText("Disqualified")
         self.times[sender - 1] = "DQ_" + self.times[sender - 1] + "_DQ"
-        return
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  
     #---------------------------------------------------------------------------------
