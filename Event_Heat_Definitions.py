@@ -176,8 +176,8 @@ class Ui_event_wizard(object):
         event_wizard.setObjectName("event_wizard")
         event_wizard.resize(650, 300)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
-        #sizePolicy.setHorizontalStretch(0)
-        #sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(event_wizard.sizePolicy().hasHeightForWidth())
         event_wizard.setSizePolicy(sizePolicy)
         event_wizard.setMaximumSize(QtCore.QSize(650, 200))
@@ -786,8 +786,8 @@ class Ui_event_wizard(object):
         sizePolicy.setHeightForWidth(self.event_number_text_enter.sizePolicy().hasHeightForWidth())
         self.event_number_text_enter.setSizePolicy(sizePolicy)
 
-        self.event_number_text_enter.setMinimumSize(QtCore.QSize(200, 40))
-        self.event_number_text_enter.setMaximumSize(QtCore.QSize(200, 40))
+        self.event_number_text_enter.setMinimumSize(QtCore.QSize(80, 28))
+        self.event_number_text_enter.setMaximumSize(QtCore.QSize(80, 28))
         self.event_number_text_enter.setStyleSheet("color: rgb(255, 255, 255);")
         self.event_number_text_enter.setObjectName("event_number_text_enter")
         self.horizontalLayout.addWidget(self.event_number_text_enter, 0, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
@@ -886,30 +886,11 @@ class Ui_event_wizard(object):
         self.number_of_heats_combo.addItem("")
         self.number_of_heats_combo.addItem("")
         self.number_of_heats_combo.addItem("")
+        self.number_of_heats_combo.addItem("")
+
         self.horizontalLayout.addWidget(self.number_of_heats_combo, 0, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
         self.gridLayout.addLayout(self.horizontalLayout, 1, 0, 1, 1)
         event_wizard.setCentralWidget(self.centralwidget)
-        #self.statusbar = QtWidgets.QStatusBar(event_wizard)
-        #self.statusbar.setObjectName("statusbar")
-        #event_wizard.setStatusBar(self.statusbar)
-        #self.menuBar = QtWidgets.QMenuBar(event_wizard)
-        #self.menuBar.setGeometry(QtCore.QRect(0, 0, 1321, 47))
-        #self.menuBar.setObjectName("menuBar")
-        #self.menuOptions = QtWidgets.QMenu(self.menuBar)
-        #self.menuOptions.setObjectName("menuOptions")
-        #event_wizard.setMenuBar(self.menuBar)
-        #self.actionsave_file = QtWidgets.QAction(event_wizard)
-        #self.actionsave_file.setObjectName("actionsave_file")
-        #self.actionopen_new_file = QtWidgets.QAction(event_wizard)
-        #self.actionopen_new_file.setObjectName("actionopen_new_file")
-        #self.actionAdded_Options = QtWidgets.QAction(event_wizard)
-        #self.actionAdded_Options.setObjectName("actionAdded_Options")
-        #self.actionOptions = QtWidgets.QAction(event_wizard)
-        #self.actionOptions.setObjectName("actionOptions")
-        #self.actionConfigure_Timers = QtWidgets.QAction(event_wizard)
-        #self.actionConfigure_Timers.setObjectName("actionConfigure_Timers")
-        #self.menuOptions.addAction(self.actionConfigure_Timers)
-        #self.menuBar.addAction(self.menuOptions.menuAction())
 
         self.retranslateUi_2(event_wizard)
         QtCore.QMetaObject.connectSlotsByName(event_wizard)
@@ -918,12 +899,12 @@ class Ui_event_wizard(object):
     def retranslateUi_2(self, event_wizard):
         _translate = QtCore.QCoreApplication.translate
         event_wizard.setWindowTitle(_translate("event_wizard", "Event Wizard"))
-        self.label_6.setText(_translate("event_wizard", "Event Number"))
-        self.label_5.setText(_translate("event_wizard", "Age"))
-        self.label_4.setText(_translate("event_wizard", "Gender  "))
-        self.label_3.setText(_translate("event_wizard", "Distance             "))
-        self.label_2.setText(_translate("event_wizard", "Stroke             "))
-        self.label.setText(_translate("event_wizard", "Number of Heats"))
+        self.label_6.setText(_translate("event_wizard", "         Event Number"))
+        self.label_5.setText(_translate("event_wizard", "           Age"))
+        self.label_4.setText(_translate("event_wizard", "           Gender  "))
+        self.label_3.setText(_translate("event_wizard", "            Distance             "))
+        self.label_2.setText(_translate("event_wizard", "               Stroke             "))
+        self.label.setText(_translate("event_wizard", "           Number of Heats"))
         self.enter_event_information_button.setText(_translate("event_wizard", "Enter Event Information"))
         self.age_combo.setItemText(1, _translate("event_wizard", "0-6"))
         self.age_combo.setItemText(2, _translate("event_wizard", "7-8"))
@@ -956,20 +937,11 @@ class Ui_event_wizard(object):
         self.number_of_heats_combo.setItemText(7, _translate("event_wizard", "7"))
         self.number_of_heats_combo.setItemText(8, _translate("event_wizard", "8"))
         self.number_of_heats_combo.setItemText(9, _translate("event_wizard", "9"))
+        self.number_of_heats_combo.setItemText(10, _translate("event_wizard", "100"))
+
 
         self.enter_event_information_button.clicked.connect(event_wizard.close)
 
-    #def close_port_query(self):
-        #app = QApplication(sys.argv)
-        #item, ok = QInputDialog.getItem(self, "Quit Confirmation", 
-        #                "Really Exit?", ("Back To Safety!", "Exit!"), 0, False)
-        #app.exec()
-        #if ok:
-        #    if "Exit" in item:
-        #        return True
-         #   else:
-         #       return False
-   
 
     def messageBox(self, message):
         """Convenient for displaying messages such as errors or relevant info to user"""
@@ -977,16 +949,3 @@ class Ui_event_wizard(object):
         msg = qw.QMessageBox()
         msg.setText(message)
         msg.exec_()
-#if __name__ == "__main__":
-#    import sys
-#    app = QtWidgets.QApplication(sys.argv)
-#    event_wizard = QtWidgets.QMainWindow()
-#    ui_event_wizard = Ui_event_wizard()
-#    ui_event_wizard.setupUi_2(event_wizard)##
-#
-#    event_wizard.show()
-#    sys.exit(app.exec_())
-
-
-
-

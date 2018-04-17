@@ -19,7 +19,7 @@ AF.nav_to_directory(os.path.join("C:\\Users", os.getlogin(), "Documents", "Swim 
 arduino = AF.open_python_port()
 #Ensures Arduino is connected & ready before launching GUI
 #Comment this line to run GUI w/o Arduino Connected. This may cause errors when certain buttons are pressed
-#AF.wait_for_arduino_ready(arduino)
+AF.wait_for_arduino_ready(arduino)
 
 
 #Run GUI

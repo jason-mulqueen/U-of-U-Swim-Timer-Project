@@ -195,7 +195,7 @@ void configure_lanes() {
       //We need to loop, telling the timer it's new identity until the receiver gets confirmation that the timer knows who it is
       send_w_ack(nanoID, confirmationCode, lanes_received);
 
-      Serial.println("missive");
+      Serial.println("adfasdfasdfasdfmissiveasdfasdfasdfasdf");
       waiting = false;
       radio.startListening();
     }//end radio.available() if statement
@@ -214,8 +214,9 @@ void configure_lanes() {
   radio.openWritingPipe(txAddr);
   radio.stopListening();
   radio.flush_tx();
-  
-  for (int z = 0; z < 100; z++) {
+
+  //I meant MASSIVE!!!!!!!!!!!!!!!
+  for (int z = 0; z < 500; z++) {
     radio.write(&apocalypse, sizeof(apocalypse));
   }
 

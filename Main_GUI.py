@@ -65,7 +65,7 @@ class Ui_MainWindow(QMainWindow):
 
     def print_lanes(self):
         lane_value = self.comboBox.currentText()
-        print("Entered Number of Lanes is:",lane_value)
+        #print("Entered Number of Lanes is:",lane_value)
         self.close()
 
 
@@ -1174,7 +1174,10 @@ class Ui_MainWindow(QMainWindow):
                      quit_msg, QMessageBox.Yes, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
-            self.arduino.close()
+            try:
+                self.arduino.close()
+            except AttributeError:
+                pass
             sys.exit()
         else:
             pass
@@ -1225,7 +1228,7 @@ class Ui_MainWindow(QMainWindow):
         oldTime = time.perf_counter()
         config_text = 1
 
-        print("Configure Routine") #Troubleshooting message
+        #print("Configure Routine") #Troubleshooting message
 
         #Send the configure signal & lane count to the Arduino
         self.arduino.write(str.encode("33"))
@@ -1349,5 +1352,3 @@ if __name__ == "__main__":
 
     MainWindow.show()
     sys.exit(app.exec_())
-
-

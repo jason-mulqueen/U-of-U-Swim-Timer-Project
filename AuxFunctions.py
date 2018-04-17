@@ -17,8 +17,6 @@ def nav_to_directory(workingDirectory, outputFile):
     workingFile     = "dlhx0284F5.txt"
     filePath        = os.path.join(workingDirectory, workingFile)
 
-    with open(filePath, 'w') as outputFile:
-        outputFile.write("")
     with open("Meet_Data.txt", 'w') as outputFile:
         outputFile.write("Meet Data\n")
         outputFile.write("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n")

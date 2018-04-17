@@ -293,9 +293,10 @@ void configure_lanes() {
               int confirmation[2];
               confirmation[0] = (int)receivedMessage[0];
               confirmation[1] = laneID;
+              for (int z = 0; z < 5; z++) {
               radio.write(&confirmation, sizeof(confirmation));
-              radio.write(&confirmation, sizeof(confirmation));
-              radio.write(&confirmation, sizeof(confirmation));
+              }
+      
               //Serial.println("Sent Confirmation");
               radio.startListening();
             }//end laneID if
