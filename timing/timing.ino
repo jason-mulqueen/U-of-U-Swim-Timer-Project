@@ -29,7 +29,7 @@ bool resetUsed = false;
 //laneID allows for configuration routine
 //identifier is legacy
 
-unsigned int identifier = 3;
+unsigned int identifier = 6;
 unsigned int nanoID = identifier;
 unsigned int laneID = nanoID;
 
@@ -65,18 +65,23 @@ void loop()
   digitalWrite(stopLED, HIGH);
 
   bool message = false;
-  bool heatLooping = true;
+  bool heatLooping = false;
 
   //************************************************************
   while (!message) {
+    digitalWrite(stopLED, HIGH);
+    digitalWrite(goLED, LOW);
     if (radio.available()) {
       int text = 0;
       Serial.println("Receiving...Checking Message:");
       radio.read(&text, sizeof(text));
       Serial.println(text);
 
-      if (text == configureCode){
+      if (text == 33){
         configure_lanes();
+        Serial.println("Yup");
+        resetUsed = true;
+        break;
       }
       
       //checking for special message
@@ -149,7 +154,7 @@ void loop()
 
 
 bool send_w_ack(unsigned int &a, unsigned int &b, unsigned int &c, bool configuring) {
-
+  radio.stopListening();
   unsigned int messageToSend[3] = {a, b, c};
   Serial.println(messageToSend[0]);
   Serial.println(messageToSend[1]);
@@ -272,17 +277,37 @@ void configure_lanes() {
     if (resetButtonState == LOW) {
       unsigned int voidState = 999;
       send_w_ack(nanoID, voidState, voidState, true);
+      digitalWrite(goLED, LOW);
+      digitalWrite(stopLED, HIGH);
       //*****
 
       //Once "send_w_ack" exits, the timer knows who it is
       //Now we reverse the acknowlwedgement - the receiver will ping the timer until the
       //receiver gets confirmation that the timer knows it's new lane assignment
+        radio.flush_tx();
+        radio.begin();
+        radio.setAutoAck(false);
+        radio.setDataRate(RF24_250KBPS);
+        radio.setRetries(8, 15);
+        radio.openWritingPipe(rxAddr);
+        radio.openReadingPipe(1, myAdd);
+        radio.flush_tx();
+        radio.stopListening();
+        Serial.print("nanoID = ");
+        Serial.println(nanoID);
+        Serial.print("laneID = ");
+        Serial.println(laneID);
       while (true) {
         radio.startListening();
         if (radio.available())
         {
+          //Serial.println("Incoming coolnes");
           unsigned int receivedMessage[3];
           radio.read(&receivedMessage, sizeof(receivedMessage));
+          Serial.println(receivedMessage[0]);
+          Serial.println(receivedMessage[1]);
+          Serial.println(receivedMessage[2]);
+
 //OPTION 1
           if (receivedMessage[0] == nanoID) {
             if (receivedMessage[2] == laneID) {
@@ -306,16 +331,35 @@ void configure_lanes() {
           if (receivedMessage[0] == exitConfigureCode) {
             break; //break out of while(true) and exit function
           }
+
+          
         }//end if radio.available()
-        radio.flush_tx();
-        radio.begin();
-        radio.setAutoAck(false);
-        radio.setDataRate(RF24_250KBPS);
-        radio.setRetries(8, 15);
-        radio.openWritingPipe(rxAddr);
-        radio.openReadingPipe(1, myAdd);
-        radio.flush_tx();
-        radio.stopListening();
+
+
+        currentMillis = millis();
+          if (currentMillis - previousMillis > 500) {
+          previousMillis = currentMillis;
+
+          if (ledState == HIGH) {
+          ledState = LOW;
+          }
+             else {
+          ledState = HIGH;
+          }
+          digitalWrite(goLED, ledState);
+          //digitalWrite(stopLED, ledState);
+          }
+          
+        //radio.flush_tx();
+        //radio.begin();
+        //radio.setAutoAck(false);
+        //radio.setDataRate(RF24_250KBPS);
+        //radio.setRetries(8, 15);
+        //radio.openWritingPipe(rxAddr);
+        //radio.openReadingPipe(1, myAdd);
+        //radio.flush_tx();
+        //radio.stopListening();
+        
         }//end while(true)
 
         radio.flush_tx();
@@ -329,6 +373,7 @@ void configure_lanes() {
         radio.stopListening();
         digitalWrite(goLED, LOW);
         digitalWrite(stopLED, HIGH);
+        return; //out of while resetbutton
       }//end if (resetButtonState == LOW)
     }//end while resetButtonState == HIGH
     //resetButtonState should be high and break out of the while HIGH loop, allowing to exit function

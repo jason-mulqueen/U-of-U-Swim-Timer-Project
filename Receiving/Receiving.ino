@@ -52,9 +52,9 @@ void loop()
     if (Serial.available()) {
       int state = Serial.read() - '0';
 
-      if (state == 33) { //If "CONFIGURE" signal, do that
+      if (state == 9) { //If "CONFIGURE" signal, do that
         //Serial.println("Configuring lanes");
-        configure_lanes();
+        bool h = configure_lanes();
       }
 
       if (state == 1) { //If correct start signal is received, begin doing stuff
@@ -143,29 +143,43 @@ void loop()
 
 }
 
-void configure_lanes() {
+bool configure_lanes() {
+  for (int k = 0; k < 100; k++){
+     radio.write(&configureCode, sizeof(configureCode));
+     } 
   bool LED_state = HIGH;
   unsigned long start_time = millis();
   digitalWrite(LED, LED_state);
 
   unsigned int lane_count = 0;
+  //lane_count = 2;
 
   while (true) {
     if (Serial.available()) {
+      Serial.println("ghhj");
       lane_count = Serial.read() - '0';
       break;
     }
   }//end while(true)
-
+Serial.print("Lane Count: ");
+Serial.println(lane_count);
   //Broadcast "CONFIGURE" signal
+  radio.begin();
+  radio.setAutoAck(false);
+  radio.setDataRate(RF24_250KBPS);
+  radio.setRetries(8, 15);
+  radio.openReadingPipe(1, rxAddr);
+  radio.openWritingPipe(txAddr);
   radio.stopListening();
   radio.flush_tx();
-  for (int k = 0; k < 100; k++){
-     radio.write(&configureCode, sizeof(configureCode));
-     } 
+  
 
   radio.startListening();
-
+  bool asg[lane_count];
+  for (unsigned int p = 0; p < lane_count; p++){
+    asg[p] = false;
+  }
+  
   //Loop while listening for lanes
   for (unsigned int lanes_received = 1; lanes_received <= lane_count; lanes_received++) {
     bool waiting = true;
@@ -186,8 +200,13 @@ void configure_lanes() {
       unsigned int incoming[3];
       radio.read(&incoming, sizeof(incoming));
       unsigned int nanoID = incoming[0];
+      Serial.print("Nano: ");
+      Serial.println(nanoID);
       unsigned int void1  = incoming[1];
       unsigned int void2  = incoming[2];
+      if (asg[nanoID - 1] == true){
+        continue;
+      }
       //Send out confirmation
       radio.stopListening();
       radio.flush_tx();
@@ -195,7 +214,8 @@ void configure_lanes() {
       //We need to loop, telling the timer it's new identity until the receiver gets confirmation that the timer knows who it is
       send_w_ack(nanoID, confirmationCode, lanes_received);
 
-      Serial.println("adfasdfasdfasdfmissiveasdfasdfasdfasdf");
+      Serial.println("adfasdfasdfmissiveasdfasdfasdf");
+      asg[nanoID - 1] = true;
       waiting = false;
       radio.startListening();
     }//end radio.available() if statement
@@ -204,7 +224,8 @@ void configure_lanes() {
   }//end lane assignment for loop
 
   //Send massive broadcast to end this configuration madness once & for all!
-  unsigned int apocalypse[3] = {exitConfigureCode, exitConfigureCode, exitConfigureCode};
+  Serial.println("Escape");
+  int apocalypse[3] = {exitConfigureCode, exitConfigureCode, exitConfigureCode};
   radio.stopListening();
   radio.begin();
   radio.setAutoAck(false);
@@ -229,7 +250,7 @@ void configure_lanes() {
   radio.openWritingPipe(txAddr);
   radio.stopListening();
   radio.flush_tx();
-  
+  return true;
 }//end configure_lanes
 
 //---------------------------------------------------------------------------------------------
@@ -244,20 +265,20 @@ bool send_w_ack(unsigned int &a, unsigned int &b, unsigned int &c) {
   //STUFF TO HANDLE CONFIRMATION OF TIME SIGNAL BEING SENT & RECEIVED BY RECEIVING UNIT
   bool successfulComms = false;
   while (successfulComms == false) {
-
+    //Serial.print("SComs is ");
+    //Serial.println(successfulComms);
+    radio.stopListening();
     radio.write(&messageToSend, sizeof(messageToSend));
     //radio.txStandBy();
-    Serial.println("Sent");
+    //Serial.println("Sent");
     radio.startListening();
     //Serial.println("Listening...");
     unsigned int startListenTime = millis();
     unsigned int listenTime = 0;
     while (successfulComms == false && listenTime <= 40) {
-      Serial.println("Top of Listening Loop");
+      //Serial.println("Top of Listening Loop");
       if (radio.available()) {
-
         int conf[2];
-
         Serial.println("RADIO WAS AVAIALABLE");
         radio.read(&conf, sizeof(conf));
         Serial.println(conf[0]);
@@ -271,13 +292,9 @@ bool send_w_ack(unsigned int &a, unsigned int &b, unsigned int &c) {
             break; //Break out of && while loop, we're good
           }//End confirmation if
         }// End identifier if
-
       }//end radio.available() if
-
       listenTime = millis() - startListenTime;
-
     }// End successfulComm && listenTime for confirmation while
-
   }//end while (successfulComms == false)
 
   return false;

@@ -1055,6 +1055,7 @@ class Ui_MainWindow(QMainWindow):
 
         #Send go signal to connected Arduino
         self.arduino.write(str.encode("1"))
+        
 
         self.times_running   = True
         self.heat_terminated = False
@@ -1231,10 +1232,10 @@ class Ui_MainWindow(QMainWindow):
         #print("Configure Routine") #Troubleshooting message
 
         #Send the configure signal & lane count to the Arduino
-        self.arduino.write(str.encode("33"))
+        self.arduino.write(str.encode("9"))
         self.arduino.write(str.encode(str(self.lane_count)))
 
-        #print(self.lane_count)
+        print("Lane Count:", self.lane_count)
 
         config_success = [] #List of flags so only lanes that are still pending are looping
         for idx, ledit in enumerate(self.ledits):
@@ -1285,9 +1286,11 @@ class Ui_MainWindow(QMainWindow):
 
                 #Check for successful lane cofiguration message from Arduino
                 if (self.arduino.inWaiting() > 0):
+                    #print("iuytyugfcyuvhuihvbuihv")
                     data = bytes.decode(self.arduino.readline())
-                    m = data.split()
-                    if "missive" in m:
+                    print(data)
+                    if "missive" in data:
+                        print("i =", i)
                         self.ledits[i].setText("Success!")
                         config_success[i] = True
                         break #Hops out of while true to continue for loop
@@ -1301,6 +1304,9 @@ class Ui_MainWindow(QMainWindow):
         self.configuringActive = False #Reset this flag so the program can run properly
 
         self.messageBox("Configuration is Complete!")
+        self.arduino.reset_input_buffer()
+        self.arduino.reset_output_buffer()
+        return
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     #--------------------------------------------------------------------------------------------------------------------
