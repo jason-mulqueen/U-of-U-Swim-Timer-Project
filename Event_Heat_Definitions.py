@@ -1,9 +1,17 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jan 31 13:45:13 2018
+#########################################################################################
 
-@author: Kyle
-"""
+#Script Description:
+# Contains classes for heat and event objects used in Megalodon application to organize
+# meet data.
+# Also contains code for Event Wizard
+
+#Author: Kyle Cook - Logic
+#        Jason Mulqueen - QtDesigner work & some functions
+
+#Last Updated: 4/24/2018
+
+#########################################################################################
+
 import PyQt5.QtWidgets as qw
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -1,3 +1,20 @@
+#########################################################################################
+
+#Script Description:
+# Main GUI code for Megalodon application. Contains logic and algorithms for dynamically
+# building GUI according to user defined lane inputs as well as the main GUI window &
+# backend system architecture with nice GUI front end
+
+##Author: Kyle Cook - Logic
+#        Jason Mulqueen - QtDesigner work & some functions
+
+#Last Updated: 4/24/2018
+
+#########################################################################################
+
+
+
+
 import PyQt5.QtWidgets as qw
 import time
 import sys

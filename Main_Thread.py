@@ -1,3 +1,17 @@
+#########################################################################################
+
+#Script Description:
+# Main thread for launching Megalodon application. Runs some preliminary routines for
+# configuring Arduino and user's PC before launching main GUI
+
+#Author: Kyle Cook
+
+#Last Updated: 4/24/2018
+
+#########################################################################################
+
+
+
 #Import default libraries
 import serial
 import serial.tools.list_ports

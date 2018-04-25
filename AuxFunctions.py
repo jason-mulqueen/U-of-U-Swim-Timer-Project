@@ -1,3 +1,16 @@
+#########################################################################################
+
+#Script Description:
+# Auxillary functions used in main thread to setup Arduino & PC
+
+#Author: Kyle Cook
+
+#Last Updated: 4/24/2018
+
+#########################################################################################
+
+
+
 import os
 import sys
 import serial
